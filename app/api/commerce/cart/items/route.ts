@@ -26,7 +26,19 @@ async function recalc(cartId: string): Promise<CartResponse> {
     .from('cart_items')
     .select('id, variant_id, qty, unit_price_cents, row_total_cents, pim_variants(sku, name)')
     .eq('cart_id', cartId);
-  const totals = calculateTotals(items ?? []);
+  const cartItems: CartResponse['items'] = (items ?? []).map((item) => {
+    const variant = Array.isArray(item.pim_variants) ? item.pim_variants[0] : item.pim_variants;
+    return {
+      id: item.id,
+      variantId: item.variant_id,
+      sku: variant?.sku ?? '',
+      name: variant?.name ?? '',
+      qty: item.qty,
+      unitPriceCents: item.unit_price_cents,
+      rowTotalCents: item.row_total_cents
+    };
+  });
+  const totals = calculateTotals(cartItems);
   await supabase
     .from('carts')
     .update({ subtotal_cents: totals.subtotalCents, total_cents: totals.totalCents })
@@ -35,15 +47,7 @@ async function recalc(cartId: string): Promise<CartResponse> {
   return {
     cartId,
     currency: cart.currency,
-    items: (items ?? []).map((item) => ({
-      id: item.id,
-      variantId: item.variant_id,
-      sku: item.pim_variants?.sku ?? '',
-      name: item.pim_variants?.name ?? '',
-      qty: item.qty,
-      unitPriceCents: item.unit_price_cents,
-      rowTotalCents: item.row_total_cents
-    })),
+    items: cartItems,
     totals
   };
 }
