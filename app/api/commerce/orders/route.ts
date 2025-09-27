@@ -110,16 +110,19 @@ export async function POST(request: Request) {
     if (orderError || !order) {
       throw orderError ?? new Error('Order creation failed');
     }
-    const orderItems = items.map((item) => ({
-      order_id: order.id,
-      product_id: item.pim_variants?.product_id ?? null,
-      variant_id: item.variant_id,
-      sku: item.pim_variants?.sku ?? '',
-      name: item.pim_variants?.name ?? '',
-      qty: item.qty,
-      unit_price_cents: item.unit_price_cents,
-      row_total_cents: item.row_total_cents
-    }));
+    const orderItems = items.map((item) => {
+      const variant = Array.isArray(item.pim_variants) ? item.pim_variants[0] : item.pim_variants;
+      return {
+        order_id: order.id,
+        product_id: variant?.product_id ?? null,
+        variant_id: item.variant_id,
+        sku: variant?.sku ?? '',
+        name: variant?.name ?? '',
+        qty: item.qty,
+        unit_price_cents: item.unit_price_cents,
+        row_total_cents: item.row_total_cents
+      };
+    });
     await supabase.from('order_items').insert(orderItems);
     await supabase.from('cart_items').delete().eq('cart_id', cart.id);
     await supabase
