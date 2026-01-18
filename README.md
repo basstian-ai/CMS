@@ -11,6 +11,23 @@ Dette repoet er klargjort for en enkel, stabil og kostnadseffektiv monolitt base
   1. Innhold: ta med det dere faktisk trenger (ikke alt historisk).
   2. Media: bare det som er nødvendig + podcast MP3 (kritisk pga legacy URL).
 
+## Kom i gang
+
+```bash
+npm install
+npm run dev
+```
+
+### Miljøvariabler
+Kopier `.env.example` til `.env.local` og fyll inn følgende:
+
+```bash
+NEXT_PUBLIC_SUPABASE_URL=
+NEXT_PUBLIC_SUPABASE_ANON_KEY=
+SUPABASE_SERVICE_ROLE_KEY=
+SUPABASE_JWT_SECRET=
+```
+
 ## Scope (MVP)
 
 ### Frontend (publikum)
@@ -44,7 +61,7 @@ Dette repoet er klargjort for en enkel, stabil og kostnadseffektiv monolitt base
 app/                # Next.js App Router
   (public)/         # Publikumsflaten
   admin/            # Admin/CMS
-components/         # Delt UI (senere)
+components/         # Delt UI
 content/            # Midlertidig innhold/fixtures (senere)
 db/                 # Migrasjoner og DB-scripts
   migrations/
@@ -53,4 +70,4 @@ public/             # Statiske assets
 scripts/            # Migrering og vedlikehold
 ```
 
-> Ingen applikasjonskode er lagt inn ennå. Neste steg er å definere datamodell, ruter og minimums-UI basert på scope.
+> Neste steg er datamodell, ruter og minimums-UI basert på scope.
