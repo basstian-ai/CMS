@@ -1,13 +1,11 @@
-import Link from "next/link";
-
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { BodyText, Heading, Subheading } from "@/components/ui/typography";
 
 const quickLinks = [
-  { title: "Gi", description: "Støtt arbeidet med et engangsgave eller fast støtte.", href: "/gi" },
-  { title: "Besøk oss", description: "Finn tid, sted og praktisk informasjon.", href: "/om-oss" },
-  { title: "Meld deg på", description: "Påmelding til samlinger og arrangement.", href: "/kalender" },
+  { title: "Gi", description: "Støtt arbeidet med et engangsgave eller fast støtte." },
+  { title: "Besøk oss", description: "Finn tid, sted og praktisk informasjon." },
+  { title: "Meld deg på", description: "Påmelding til samlinger og arrangement." },
 ];
 
 const news = [
@@ -70,9 +68,9 @@ export default function HomePage() {
             <Card key={link.title} className="space-y-3">
               <h3 className="text-lg font-semibold text-slate-900">{link.title}</h3>
               <BodyText>{link.description}</BodyText>
-              <Link className="text-sm font-semibold text-brand-600" href={link.href}>
+              <span className="text-sm font-semibold text-slate-400">
                 Gå til {link.title.toLowerCase()} →
-              </Link>
+              </span>
             </Card>
           ))}
         </div>
@@ -82,9 +80,7 @@ export default function HomePage() {
         <div className="container-layout space-y-8 py-14">
           <div className="flex items-center justify-between">
             <Subheading>Siste nyheter</Subheading>
-            <Link className="text-sm font-semibold text-brand-600" href="/nyheter">
-              Se alle nyheter
-            </Link>
+            <span className="text-sm font-semibold text-slate-400">Se alle nyheter</span>
           </div>
           <div className="grid gap-6 md:grid-cols-3">
             {news.map((item) => (
