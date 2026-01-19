@@ -13,12 +13,23 @@ function formatDate(value: string | null) {
   }).format(date);
 }
 
-export default async function EventsPage() {
+export default async function EventsPage({
+  searchParams,
+}: {
+  searchParams?: { query?: string };
+}) {
   const supabase = createSupabaseServerClient();
-  const { data: events } = await supabase
+  const query = searchParams?.query?.trim();
+  let request = supabase
     .from("events")
     .select("id, slug, title, status, start_time, end_time")
     .order("start_time", { ascending: false });
+  if (query) {
+    request = request.or(
+      `slug.ilike.%${query}%,title->>no.ilike.%${query}%`
+    );
+  }
+  const { data: events } = await request;
 
   return (
     <div className="space-y-6">
@@ -36,6 +47,24 @@ export default async function EventsPage() {
           Nytt arrangement
         </Link>
       </div>
+
+      <form className="flex flex-wrap items-center gap-3">
+        <label className="text-sm text-slate-200">
+          Søk
+          <input
+            name="query"
+            defaultValue={query}
+            placeholder="Søk i tittel eller slug"
+            className="mt-2 w-full rounded-xl border border-slate-800 bg-slate-950 px-4 py-2 text-slate-100"
+          />
+        </label>
+        <button
+          type="submit"
+          className="mt-6 rounded-full border border-slate-700 px-4 py-2 text-sm text-slate-200"
+        >
+          Filtrer
+        </button>
+      </form>
 
       <div className="overflow-hidden rounded-2xl border border-slate-800">
         <table className="w-full text-sm">
