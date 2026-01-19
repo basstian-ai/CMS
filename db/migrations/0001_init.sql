@@ -182,7 +182,16 @@ create policy "profiles_select_own_or_admin"
 
 create policy "profiles_update_own"
   on profiles for update
-  using (auth.uid() = id);
+  using (auth.uid() = id)
+  with check (
+    auth.uid() = id
+    and role = (select role from profiles where id = auth.uid())
+  );
+
+create policy "profiles_admin_update"
+  on profiles for update
+  using (is_cms_admin())
+  with check (is_cms_admin());
 
 create policy "profiles_admin_insert"
   on profiles for insert
