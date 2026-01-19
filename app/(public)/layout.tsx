@@ -12,6 +12,7 @@ export default function PublicLayout({ children }: PropsWithChildren) {
             Bykirken
           </Link>
           <nav className="hidden items-center gap-6 text-sm text-slate-600 md:flex">
+
             <Link href="/nyheter" className="transition hover:text-slate-900">
               Nyheter
             </Link>

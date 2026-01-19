@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState } from "react";
@@ -14,6 +15,7 @@ export default function AdminPage() {
     window.location.href = "/admin/login";
   };
 
+
   return (
     <div className="space-y-3">
       <h2 className="text-lg font-semibold">Velkommen!</h2>
@@ -28,6 +30,7 @@ export default function AdminPage() {
       >
         Logg ut
       </Button>
+
     </div>
   );
 }

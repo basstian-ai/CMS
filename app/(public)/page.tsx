@@ -1,3 +1,4 @@
+
 import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
@@ -5,9 +6,11 @@ import { Card } from "@/components/ui/card";
 import { BodyText, Heading, Subheading } from "@/components/ui/typography";
 
 const quickLinks = [
+
   { title: "Gi", description: "Støtt arbeidet med et engangsgave eller fast støtte.", href: "/gi" },
   { title: "Besøk oss", description: "Finn tid, sted og praktisk informasjon.", href: "/om-oss" },
   { title: "Meld deg på", description: "Påmelding til samlinger og arrangement.", href: "/kalender" },
+
 ];
 
 const news = [
@@ -70,9 +73,11 @@ export default function HomePage() {
             <Card key={link.title} className="space-y-3">
               <h3 className="text-lg font-semibold text-slate-900">{link.title}</h3>
               <BodyText>{link.description}</BodyText>
+
               <Link className="text-sm font-semibold text-brand-600" href={link.href}>
                 Gå til {link.title.toLowerCase()} →
               </Link>
+
             </Card>
           ))}
         </div>
@@ -85,6 +90,7 @@ export default function HomePage() {
             <Link className="text-sm font-semibold text-brand-600" href="/nyheter">
               Se alle nyheter
             </Link>
+
           </div>
           <div className="grid gap-6 md:grid-cols-3">
             {news.map((item) => (
