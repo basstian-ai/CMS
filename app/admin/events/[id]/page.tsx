@@ -12,7 +12,10 @@ function formatDateTime(value: string | null) {
   if (Number.isNaN(date.getTime())) {
     return "";
   }
-  return date.toISOString().slice(0, 16);
+  const pad = (input: number) => input.toString().padStart(2, "0");
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(
+    date.getDate()
+  )}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
 }
 
 export default async function EventDetailPage({

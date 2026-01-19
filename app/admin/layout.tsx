@@ -1,4 +1,5 @@
 import Link from "next/link";
+import type { Route } from "next";
 
 import { AdminSignOutButton } from "@/components/admin/sign-out-button";
 
@@ -8,7 +9,7 @@ const navItems = [
   { href: "/admin/events", label: "Arrangementer" },
   { href: "/admin/sermons", label: "Taler" },
   { href: "/admin/pages", label: "Sider" },
-];
+] satisfies { href: Route; label: string }[];
 
 export default function AdminLayout({
   children,
