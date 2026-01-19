@@ -1,4 +1,5 @@
 import Link from "next/link";
+import type { Route } from "next";
 
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
@@ -27,7 +28,7 @@ const cards = [
     href: "/admin/pages",
     key: "pages",
   },
-];
+] satisfies { title: string; description: string; href: Route; key: string }[];
 
 async function fetchCounts() {
   const supabase = createSupabaseServerClient();
