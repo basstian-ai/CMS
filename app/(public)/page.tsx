@@ -1,16 +1,15 @@
 
+import type { Route } from "next";
 import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { BodyText, Heading, Subheading } from "@/components/ui/typography";
 
-const quickLinks = [
-
+const quickLinks: Array<{ title: string; description: string; href: Route }> = [
   { title: "Gi", description: "Støtt arbeidet med et engangsgave eller fast støtte.", href: "/gi" },
   { title: "Besøk oss", description: "Finn tid, sted og praktisk informasjon.", href: "/om-oss" },
   { title: "Meld deg på", description: "Påmelding til samlinger og arrangement.", href: "/kalender" },
-
 ];
 
 const news = [
