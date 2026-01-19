@@ -12,10 +12,19 @@ export default function PublicLayout({ children }: PropsWithChildren) {
             Bykirken
           </Link>
           <nav className="hidden items-center gap-6 text-sm text-slate-600 md:flex">
-            <span className="cursor-default text-slate-400">Nyheter</span>
-            <span className="cursor-default text-slate-400">Kalender</span>
-            <span className="cursor-default text-slate-400">Podcast</span>
-            <span className="cursor-default text-slate-400">Kontakt</span>
+
+            <Link href="/nyheter" className="transition hover:text-slate-900">
+              Nyheter
+            </Link>
+            <Link href="/kalender" className="transition hover:text-slate-900">
+              Kalender
+            </Link>
+            <Link href="/podcast" className="transition hover:text-slate-900">
+              Podcast
+            </Link>
+            <Link href="/kontakt" className="transition hover:text-slate-900">
+              Kontakt
+            </Link>
           </nav>
           <Button variant="secondary" className="hidden md:inline-flex">
             Gi

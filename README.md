@@ -28,6 +28,15 @@ SUPABASE_SERVICE_ROLE_KEY=
 SUPABASE_JWT_SECRET=
 ```
 
+
+### Supabase (milepæl 2)
+- Kjør migrasjonen i `db/migrations/0001_init.sql` i Supabase SQL editor.
+- Opprett en admin-bruker og sett rollen i `profiles` til `admin`.
+
+### Vercel
+- Legg inn miljøvariablene over i Vercel (Production + Preview).
+- Sett preview-beskyttelse etter behov (Vercel project settings).
+
 ## Scope (MVP)
 
 ### Frontend (publikum)
