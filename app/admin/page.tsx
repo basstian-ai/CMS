@@ -28,16 +28,23 @@ const cards = [
     href: "/admin/pages",
     key: "pages",
   },
+  {
+    title: "Media",
+    description: "Bilder og podcaster lagret i Supabase.",
+    href: "/admin/media",
+    key: "media",
+  },
 ] satisfies { title: string; description: string; href: Route; key: string }[];
 
 async function fetchCounts() {
   const supabase = createSupabaseServerClient();
 
-  const [posts, events, sermons, pages] = await Promise.all([
+  const [posts, events, sermons, pages, media] = await Promise.all([
     supabase.from("posts").select("id", { count: "exact", head: true }),
     supabase.from("events").select("id", { count: "exact", head: true }),
     supabase.from("sermons").select("id", { count: "exact", head: true }),
     supabase.from("pages").select("id", { count: "exact", head: true }),
+    supabase.from("media").select("id", { count: "exact", head: true }),
   ]);
 
   return {
@@ -45,6 +52,7 @@ async function fetchCounts() {
     events: events.count ?? 0,
     sermons: sermons.count ?? 0,
     pages: pages.count ?? 0,
+    media: media.count ?? 0,
   };
 }
 
