@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { escapePostgrestText } from "@/lib/supabase/postgrest";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 function formatDate(value: string | null) {
@@ -20,13 +21,14 @@ export default async function SermonsPage({
 }) {
   const supabase = createSupabaseServerClient();
   const query = searchParams?.query?.trim();
+  const escapedQuery = query ? escapePostgrestText(query) : null;
   let request = supabase
     .from("sermons")
     .select("id, slug, title, preacher, published_at")
     .order("published_at", { ascending: false });
-  if (query) {
+  if (escapedQuery) {
     request = request.or(
-      `slug.ilike.%${query}%,title.ilike.%${query}%,preacher.ilike.%${query}%`
+      `slug.ilike."%${escapedQuery}%",title.ilike."%${escapedQuery}%",preacher.ilike."%${escapedQuery}%"`
     );
   }
   const { data: sermons } = await request;
