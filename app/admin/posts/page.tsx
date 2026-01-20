@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { escapePostgrestText } from "@/lib/supabase/postgrest";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 function formatDate(value: string | null) {
@@ -13,12 +14,24 @@ function formatDate(value: string | null) {
   }).format(date);
 }
 
-export default async function PostsPage() {
+export default async function PostsPage({
+  searchParams,
+}: {
+  searchParams?: { query?: string };
+}) {
   const supabase = createSupabaseServerClient();
-  const { data: posts } = await supabase
+  const query = searchParams?.query?.trim();
+  const escapedQuery = query ? escapePostgrestText(query) : null;
+  let request = supabase
     .from("posts")
     .select("id, slug, title, status, updated_at, published_at")
     .order("updated_at", { ascending: false });
+  if (escapedQuery) {
+    request = request.or(
+      `slug.ilike."%${escapedQuery}%",title->>no.ilike."%${escapedQuery}%"`
+    );
+  }
+  const { data: posts } = await request;
 
   return (
     <div className="space-y-6">
@@ -36,6 +49,24 @@ export default async function PostsPage() {
           Nytt innlegg
         </Link>
       </div>
+
+      <form className="flex flex-wrap items-center gap-3">
+        <label className="text-sm text-slate-200">
+          Søk
+          <input
+            name="query"
+            defaultValue={query}
+            placeholder="Søk i tittel eller slug"
+            className="mt-2 w-full rounded-xl border border-slate-800 bg-slate-950 px-4 py-2 text-slate-100"
+          />
+        </label>
+        <button
+          type="submit"
+          className="mt-6 rounded-full border border-slate-700 px-4 py-2 text-sm text-slate-200"
+        >
+          Filtrer
+        </button>
+      </form>
 
       <div className="overflow-hidden rounded-2xl border border-slate-800">
         <table className="w-full text-sm">
