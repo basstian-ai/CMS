@@ -75,7 +75,7 @@ export async function uploadMedia(formData: FormData) {
       alt: { no: alt },
       caption: caption ? { no: caption } : null,
     },
-    { onConflict: "path" }
+    { onConflict: "bucket,path" }
   );
 
   if (insertError) {
