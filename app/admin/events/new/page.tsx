@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { createEvent } from "@/app/admin/events/actions";
+import { MarkdownEditor } from "@/components/admin/markdown-editor";
 
 export default function NewEventPage() {
   return (
@@ -39,14 +40,7 @@ export default function NewEventPage() {
           </label>
         </div>
 
-        <label className="space-y-2 text-sm text-slate-200">
-          Beskrivelse (Markdown)
-          <textarea
-            name="description"
-            rows={6}
-            className="w-full rounded-xl border border-slate-800 bg-slate-950 px-4 py-2"
-          />
-        </label>
+        <MarkdownEditor label="Beskrivelse (Markdown)" name="description" rows={8} />
 
         <div className="grid gap-4 md:grid-cols-2">
           <label className="space-y-2 text-sm text-slate-200">

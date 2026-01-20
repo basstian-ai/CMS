@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { deleteEvent, updateEvent } from "@/app/admin/events/actions";
+import { MarkdownEditor } from "@/components/admin/markdown-editor";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 function formatDateTime(value: string | null) {
@@ -74,15 +75,12 @@ export default async function EventDetailPage({
           </label>
         </div>
 
-        <label className="space-y-2 text-sm text-slate-200">
-          Beskrivelse (Markdown)
-          <textarea
-            name="description"
-            rows={6}
-            defaultValue={event.description_md?.no ?? ""}
-            className="w-full rounded-xl border border-slate-800 bg-slate-950 px-4 py-2"
-          />
-        </label>
+        <MarkdownEditor
+          label="Beskrivelse (Markdown)"
+          name="description"
+          rows={8}
+          defaultValue={event.description_md?.no ?? ""}
+        />
 
         <div className="grid gap-4 md:grid-cols-2">
           <label className="space-y-2 text-sm text-slate-200">

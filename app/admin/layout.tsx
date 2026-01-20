@@ -9,6 +9,7 @@ const navItems = [
   { href: "/admin/events", label: "Arrangementer" },
   { href: "/admin/sermons", label: "Taler" },
   { href: "/admin/pages", label: "Sider" },
+  { href: "/admin/media", label: "Media" },
 ] satisfies { href: Route; label: string }[];
 
 export default function AdminLayout({

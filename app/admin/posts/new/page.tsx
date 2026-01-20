@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { createPost } from "@/app/admin/posts/actions";
+import { MarkdownEditor } from "@/components/admin/markdown-editor";
 
 export default function NewPostPage() {
   return (
@@ -48,14 +49,7 @@ export default function NewPostPage() {
           />
         </label>
 
-        <label className="space-y-2 text-sm text-slate-200">
-          Innhold (Markdown)
-          <textarea
-            name="content"
-            rows={10}
-            className="w-full rounded-xl border border-slate-800 bg-slate-950 px-4 py-2"
-          />
-        </label>
+        <MarkdownEditor label="Innhold (Markdown)" name="content" rows={12} />
 
         <div className="grid gap-4 md:grid-cols-3">
           <label className="space-y-2 text-sm text-slate-200">
