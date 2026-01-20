@@ -3,9 +3,10 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
-import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { createSupabaseAdminClient, createSupabaseServerClient } from "@/lib/supabase/server";
 
 const statusOptions = new Set(["draft", "published", "archived"]);
+const editorRoles = new Set(["admin", "editor"]);
 
 function normalizeStatus(status: string | null) {
   if (status && statusOptions.has(status)) {
@@ -25,9 +26,36 @@ function normalizeDate(value: string | null) {
   return parsed.toISOString();
 }
 
-export async function createPost(formData: FormData) {
+async function requireEditorUser() {
   const supabase = createSupabaseServerClient();
-  const { data: userData } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    throw new Error("User not authenticated.");
+  }
+
+  const adminClient = createSupabaseAdminClient();
+  const { data: profile, error } = await adminClient
+    .from("profiles")
+    .select("role")
+    .eq("id", user.id)
+    .maybeSingle();
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  if (!profile || !editorRoles.has(profile.role)) {
+    throw new Error("User does not have permission to manage posts.");
+  }
+
+  return { adminClient, userId: user.id };
+}
+
+export async function createPost(formData: FormData) {
+  const { adminClient, userId } = await requireEditorUser();
 
   const title = formData.get("title")?.toString().trim() ?? "";
   const slug = formData.get("slug")?.toString().trim() ?? "";
@@ -37,7 +65,7 @@ export async function createPost(formData: FormData) {
   const publishedAt = normalizeDate(formData.get("published_at")?.toString() ?? null);
   const coverImagePath = formData.get("cover_image_path")?.toString().trim() ?? "";
 
-  const { data, error } = await supabase
+  const { data, error } = await adminClient
     .from("posts")
     .insert({
       slug,
@@ -47,7 +75,7 @@ export async function createPost(formData: FormData) {
       status,
       published_at: publishedAt,
       cover_image_path: coverImagePath || null,
-      updated_by: userData?.user?.id ?? null,
+      updated_by: userId,
     })
     .select("id")
     .single();
@@ -61,8 +89,7 @@ export async function createPost(formData: FormData) {
 }
 
 export async function updatePost(postId: string, formData: FormData) {
-  const supabase = createSupabaseServerClient();
-  const { data: userData } = await supabase.auth.getUser();
+  const { adminClient, userId } = await requireEditorUser();
 
   const title = formData.get("title")?.toString().trim() ?? "";
   const slug = formData.get("slug")?.toString().trim() ?? "";
@@ -72,7 +99,7 @@ export async function updatePost(postId: string, formData: FormData) {
   const publishedAt = normalizeDate(formData.get("published_at")?.toString() ?? null);
   const coverImagePath = formData.get("cover_image_path")?.toString().trim() ?? "";
 
-  const { error } = await supabase
+  const { error } = await adminClient
     .from("posts")
     .update({
       slug,
@@ -82,7 +109,7 @@ export async function updatePost(postId: string, formData: FormData) {
       status,
       published_at: publishedAt,
       cover_image_path: coverImagePath || null,
-      updated_by: userData?.user?.id ?? null,
+      updated_by: userId,
     })
     .eq("id", postId);
 
@@ -95,9 +122,9 @@ export async function updatePost(postId: string, formData: FormData) {
 }
 
 export async function deletePost(postId: string) {
-  const supabase = createSupabaseServerClient();
+  const { adminClient } = await requireEditorUser();
 
-  const { error } = await supabase.from("posts").delete().eq("id", postId);
+  const { error } = await adminClient.from("posts").delete().eq("id", postId);
 
   if (error) {
     throw new Error(error.message);
