@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 
 import { Card } from "@/components/ui/card";
@@ -8,6 +9,13 @@ export const revalidate = 600;
 
 const locale = "no";
 const fallbackLocale = "en";
+
+export async function generateMetadata(): Promise<Metadata> {
+  return {
+    title: "Kalender | Bykirken",
+    description: "Se kommende arrangementer og samlinger i Bykirken.",
+  };
+}
 
 function formatEventDate(start: string, end: string | null) {
   const startDate = new Date(start);

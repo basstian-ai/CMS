@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
 import { BodyText, Heading } from "@/components/ui/typography";
@@ -16,6 +17,24 @@ type PodcastDetailPageProps = {
     slug: string;
   };
 };
+
+export async function generateMetadata({
+  params,
+}: PodcastDetailPageProps): Promise<Metadata> {
+  const sermon = await getSermonBySlug(params.slug);
+
+  if (!sermon) {
+    return {
+      title: "Episode ikke funnet | Bykirken",
+      description: "Vi fant ikke podcast-episoden du lette etter.",
+    };
+  }
+
+  return {
+    title: `${sermon.title} | Bykirken`,
+    description: sermon.description ?? "Lytt til en tale fra Bykirken.",
+  };
+}
 
 export default async function PodcastDetailPage({ params }: PodcastDetailPageProps) {
   const sermon = await getSermonBySlug(params.slug);

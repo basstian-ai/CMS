@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 
 import { Card } from "@/components/ui/card";
@@ -10,6 +11,13 @@ const formatPublishedDate = (publishedAt: string) =>
   new Intl.DateTimeFormat("nb-NO", { dateStyle: "medium" }).format(
     new Date(publishedAt)
   );
+
+export async function generateMetadata(): Promise<Metadata> {
+  return {
+    title: "Podcast | Bykirken",
+    description: "Lytt til de siste talene fra Bykirken.",
+  };
+}
 
 export default async function PodcastPage() {
   const sermons = await getLatestSermons(24);

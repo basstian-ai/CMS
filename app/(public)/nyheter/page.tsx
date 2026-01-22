@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 
 import { Card } from "@/components/ui/card";
@@ -8,6 +9,13 @@ export const revalidate = 600;
 
 const locale = "no";
 const fallbackLocale = "en";
+
+export async function generateMetadata(): Promise<Metadata> {
+  return {
+    title: "Nyheter | Bykirken",
+    description: "Les de nyeste oppdateringene og historiene fra Bykirken.",
+  };
+}
 
 export default async function NewsPage() {
   const posts = await getPublishedPosts();
