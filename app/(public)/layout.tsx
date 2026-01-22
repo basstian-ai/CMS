@@ -1,4 +1,5 @@
 import type { PropsWithChildren } from "react";
+import { Suspense } from "react";
 import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
@@ -28,7 +29,13 @@ export default function PublicLayout({ children }: PropsWithChildren) {
             </Link>
           </nav>
           <div className="flex items-center gap-3">
-            <LanguageToggle />
+            <Suspense
+              fallback={
+                <div className="h-7 w-[72px] rounded-full bg-slate-100" aria-hidden />
+              }
+            >
+              <LanguageToggle />
+            </Suspense>
             <Button variant="secondary" className="hidden md:inline-flex">
               Gi
             </Button>
