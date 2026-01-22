@@ -41,6 +41,22 @@ export async function getLatestPosts(limit: number) {
   return (data ?? []) as PublicPost[];
 }
 
+export async function getPublishedPosts() {
+  const supabase = createSupabasePublicClient();
+  const { data, error } = await supabase
+    .from("posts")
+    .select("id, slug, title, excerpt, cover_image_path, published_at")
+    .eq("status", publishedFilter.status)
+    .lte("published_at", publishedFilter.now())
+    .order("published_at", { ascending: false });
+
+  if (error) {
+    throw error;
+  }
+
+  return (data ?? []) as PublicPost[];
+}
+
 export async function getPostBySlug(slug: string) {
   const supabase = createSupabasePublicClient();
   const { data, error } = await supabase
