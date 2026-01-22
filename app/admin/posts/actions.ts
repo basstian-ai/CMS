@@ -26,6 +26,14 @@ function normalizeDate(value: string | null) {
   return parsed.toISOString();
 }
 
+function normalizePublishedAt(status: string, value: string | null) {
+  const normalized = normalizeDate(value);
+  if (!normalized && status === "published") {
+    return new Date().toISOString();
+  }
+  return normalized;
+}
+
 async function requireEditorUser() {
   const supabase = createSupabaseServerClient();
   const {
@@ -62,7 +70,10 @@ export async function createPost(formData: FormData) {
   const excerpt = formData.get("excerpt")?.toString().trim() ?? "";
   const content = formData.get("content")?.toString().trim() ?? "";
   const status = normalizeStatus(formData.get("status")?.toString() ?? null);
-  const publishedAt = normalizeDate(formData.get("published_at")?.toString() ?? null);
+  const publishedAt = normalizePublishedAt(
+    status,
+    formData.get("published_at")?.toString() ?? null,
+  );
   const coverImagePath = formData.get("cover_image_path")?.toString().trim() ?? "";
 
   const { data, error } = await adminClient
@@ -96,7 +107,10 @@ export async function updatePost(postId: string, formData: FormData) {
   const excerpt = formData.get("excerpt")?.toString().trim() ?? "";
   const content = formData.get("content")?.toString().trim() ?? "";
   const status = normalizeStatus(formData.get("status")?.toString() ?? null);
-  const publishedAt = normalizeDate(formData.get("published_at")?.toString() ?? null);
+  const publishedAt = normalizePublishedAt(
+    status,
+    formData.get("published_at")?.toString() ?? null,
+  );
   const coverImagePath = formData.get("cover_image_path")?.toString().trim() ?? "";
 
   const { error } = await adminClient
