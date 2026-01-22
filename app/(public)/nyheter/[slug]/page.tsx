@@ -1,8 +1,10 @@
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
 import { MarkdownRenderer } from "@/components/markdown-renderer";
 import { BodyText, Heading } from "@/components/ui/typography";
 import { getPostBySlug, resolveLocalizedField } from "@/lib/data";
+import { toMetadataDescription } from "@/lib/utils/metadata";
 
 export const revalidate = 1800;
 
@@ -17,6 +19,35 @@ type NewsDetailPageProps = {
     slug: string;
   };
 };
+
+export async function generateMetadata({
+  params,
+}: NewsDetailPageProps): Promise<Metadata> {
+  const post = await getPostBySlug(params.slug);
+
+  if (!post) {
+    return {
+      title: "Nyhet ikke funnet | Bykirken",
+      description: "Vi fant ikke nyheten du lette etter.",
+    };
+  }
+
+  const title =
+    resolveLocalizedField(post.title, locale, fallbackLocale) ?? "Nyhet";
+  const descriptionSource = resolveLocalizedField(
+    post.content_md,
+    locale,
+    fallbackLocale,
+  );
+
+  return {
+    title: `${title} | Bykirken`,
+    description: toMetadataDescription(
+      descriptionSource,
+      "Les siste nyheter og oppdateringer fra Bykirken.",
+    ),
+  };
+}
 
 export default async function NewsDetailPage({ params }: NewsDetailPageProps) {
   const post = await getPostBySlug(params.slug);

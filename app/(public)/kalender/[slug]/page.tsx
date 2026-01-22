@@ -1,8 +1,10 @@
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
 import { MarkdownRenderer } from "@/components/markdown-renderer";
 import { Heading } from "@/components/ui/typography";
 import { getEventBySlug, resolveLocalizedField } from "@/lib/data";
+import { toMetadataDescription } from "@/lib/utils/metadata";
 
 export const revalidate = 1800;
 
@@ -38,6 +40,36 @@ function formatEventDate(start: string, end: string | null) {
 type CalendarDetailPageProps = {
   params: Promise<{ slug: string }>;
 };
+
+export async function generateMetadata({
+  params,
+}: CalendarDetailPageProps): Promise<Metadata> {
+  const { slug } = await params;
+  const event = await getEventBySlug(slug);
+
+  if (!event) {
+    return {
+      title: "Arrangement ikke funnet | Bykirken",
+      description: "Vi fant ikke arrangementet du lette etter.",
+    };
+  }
+
+  const title =
+    resolveLocalizedField(event.title, locale, fallbackLocale) ?? "Arrangement";
+  const descriptionSource = resolveLocalizedField(
+    event.description_md,
+    locale,
+    fallbackLocale,
+  );
+
+  return {
+    title: `${title} | Bykirken`,
+    description: toMetadataDescription(
+      descriptionSource,
+      "Detaljer om arrangementer i Bykirken.",
+    ),
+  };
+}
 
 export default async function CalendarDetailPage({ params }: CalendarDetailPageProps) {
   const { slug } = await params;
