@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
+import type { UrlObject } from "url";
 
 import { normalizeLocale } from "@/lib/data/localization";
 import { cn } from "@/lib/utils";
@@ -41,10 +42,10 @@ export function LanguageToggle() {
     return normalizeLocale(searchLocale ?? cookieLocale ?? "no", "no");
   }, [searchParams, cookieLocale]);
 
-  const createHref = (locale: string) => {
+  const createHref = (locale: string): UrlObject => {
     const params = new URLSearchParams(searchParams.toString());
     params.set("lang", locale);
-    return `${pathname}?${params.toString()}`;
+    return { pathname, query: Object.fromEntries(params.entries()) };
   };
 
   return (
