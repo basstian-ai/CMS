@@ -96,6 +96,7 @@ export async function createPost(formData: FormData) {
   }
 
   revalidatePath("/admin/posts");
+  revalidatePath("/");
   redirect(`/admin/posts/${data.id}`);
 }
 
@@ -133,6 +134,7 @@ export async function updatePost(postId: string, formData: FormData) {
 
   revalidatePath("/admin/posts");
   revalidatePath(`/admin/posts/${postId}`);
+  revalidatePath("/");
 }
 
 export async function deletePost(postId: string) {
@@ -145,5 +147,6 @@ export async function deletePost(postId: string) {
   }
 
   revalidatePath("/admin/posts");
+  revalidatePath("/");
   redirect("/admin/posts");
 }
