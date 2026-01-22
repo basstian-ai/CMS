@@ -1,14 +1,14 @@
 import type { Metadata } from "next";
+import { cookies } from "next/headers";
 import Link from "next/link";
 
 import { Card } from "@/components/ui/card";
 import { BodyText, Heading } from "@/components/ui/typography";
-import { getUpcomingEvents, resolveLocalizedField } from "@/lib/data";
+import { getUpcomingEvents, normalizeLocale, resolveLocalizedField } from "@/lib/data";
 
 export const revalidate = 600;
 
-const locale = "no";
-const fallbackLocale = "en";
+const fallbackLocale = "no";
 
 export async function generateMetadata(): Promise<Metadata> {
   return {
@@ -43,7 +43,14 @@ function formatEventDate(start: string, end: string | null) {
   return `${dateLabel} kl. ${timeLabel} – ${endDateLabel} kl. ${endTimeLabel}`;
 }
 
-export default async function CalendarPage() {
+type CalendarPageProps = {
+  searchParams?: { lang?: string | string[] };
+};
+
+export default async function CalendarPage({ searchParams }: CalendarPageProps) {
+  const cookieLocale = cookies().get("lang")?.value;
+  const searchLocale = typeof searchParams?.lang === "string" ? searchParams.lang : null;
+  const locale = normalizeLocale(searchLocale ?? cookieLocale, fallbackLocale);
   const events = await getUpcomingEvents(24);
 
   return (

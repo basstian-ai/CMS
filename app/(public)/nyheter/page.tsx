@@ -1,14 +1,14 @@
 import type { Metadata } from "next";
+import { cookies } from "next/headers";
 import Link from "next/link";
 
 import { Card } from "@/components/ui/card";
 import { BodyText, Heading } from "@/components/ui/typography";
-import { getPublishedPosts, resolveLocalizedField } from "@/lib/data";
+import { getPublishedPosts, normalizeLocale, resolveLocalizedField } from "@/lib/data";
 
 export const revalidate = 600;
 
-const locale = "no";
-const fallbackLocale = "en";
+const fallbackLocale = "no";
 
 export async function generateMetadata(): Promise<Metadata> {
   return {
@@ -17,7 +17,14 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-export default async function NewsPage() {
+type NewsPageProps = {
+  searchParams?: { lang?: string | string[] };
+};
+
+export default async function NewsPage({ searchParams }: NewsPageProps) {
+  const cookieLocale = cookies().get("lang")?.value;
+  const searchLocale = typeof searchParams?.lang === "string" ? searchParams.lang : null;
+  const locale = normalizeLocale(searchLocale ?? cookieLocale, fallbackLocale);
   const posts = await getPublishedPosts();
 
   return (

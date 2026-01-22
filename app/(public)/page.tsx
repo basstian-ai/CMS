@@ -1,5 +1,6 @@
 
 import type { Route } from "next";
+import { cookies } from "next/headers";
 import Link from "next/link";
 
 import { Card } from "@/components/ui/card";
@@ -7,6 +8,7 @@ import { BodyText, Heading, Subheading } from "@/components/ui/typography";
 import {
   getLatestPosts,
   getUpcomingEvents,
+  normalizeLocale,
   resolveLocalizedField,
 } from "@/lib/data";
 
@@ -18,7 +20,7 @@ const quickLinks: Array<{ title: string; description: string; href: Route }> = [
   { title: "Meld deg på", description: "Påmelding til samlinger og arrangement.", href: "/kalender" },
 ];
 
-const locale = "no";
+const fallbackLocale = "no";
 
 const buttonBaseClasses =
   "inline-flex items-center justify-center rounded-full px-5 py-2 text-sm font-semibold transition";
@@ -37,16 +39,23 @@ const formatEventDate = (date: string) =>
     minute: "2-digit",
   }).format(new Date(date));
 
-export default async function HomePage() {
+type HomePageProps = {
+  searchParams?: { lang?: string | string[] };
+};
+
+export default async function HomePage({ searchParams }: HomePageProps) {
+  const cookieLocale = cookies().get("lang")?.value;
+  const searchLocale = typeof searchParams?.lang === "string" ? searchParams.lang : null;
+  const locale = normalizeLocale(searchLocale ?? cookieLocale, fallbackLocale);
   const [upcomingEvents, latestPosts] = await Promise.all([
     getUpcomingEvents(1),
     getLatestPosts(3),
   ]);
   const nextEvent = upcomingEvents[0] ?? null;
   const nextEventTitle =
-    resolveLocalizedField(nextEvent?.title, locale) ?? "Neste samling";
+    resolveLocalizedField(nextEvent?.title, locale, fallbackLocale) ?? "Neste samling";
   const nextEventDescription =
-    resolveLocalizedField(nextEvent?.description_md, locale) ??
+    resolveLocalizedField(nextEvent?.description_md, locale, fallbackLocale) ??
     "Vi oppdaterer programmet snart. Følg med for detaljer om neste arrangement.";
   const nextEventDate = nextEvent?.start_time ? formatEventDate(nextEvent.start_time) : null;
   const nextEventLocation = nextEvent?.location ?? "Sted annonseres snart";
@@ -148,9 +157,9 @@ export default async function HomePage() {
             {latestPosts.length ? (
               latestPosts.map((post) => {
                 const title =
-                  resolveLocalizedField(post.title, locale) ?? "Nyhet";
+                  resolveLocalizedField(post.title, locale, fallbackLocale) ?? "Nyhet";
                 const excerpt =
-                  resolveLocalizedField(post.excerpt, locale) ??
+                  resolveLocalizedField(post.excerpt, locale, fallbackLocale) ??
                   "Siste oppdateringer fra Bykirken kommer snart.";
 
                 return (

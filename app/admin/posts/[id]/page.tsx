@@ -60,6 +60,16 @@ export default async function PostDetailPage({
             />
           </label>
           <label className="space-y-2 text-sm text-slate-200">
+            Tittel (EN)
+            <input
+              name="title_en"
+              defaultValue={post.title?.en ?? ""}
+              className="w-full rounded-xl border border-slate-800 bg-slate-950 px-4 py-2"
+            />
+          </label>
+        </div>
+        <div className="grid gap-4 md:grid-cols-2">
+          <label className="space-y-2 text-sm text-slate-200">
             Slug
             <input
               name="slug"
@@ -70,22 +80,41 @@ export default async function PostDetailPage({
           </label>
         </div>
 
-        <label className="space-y-2 text-sm text-slate-200">
-          Sammendrag (NO)
-          <textarea
-            name="excerpt"
-            rows={3}
-            defaultValue={post.excerpt?.no ?? ""}
-            className="w-full rounded-xl border border-slate-800 bg-slate-950 px-4 py-2"
-          />
-        </label>
+        <div className="grid gap-4 md:grid-cols-2">
+          <label className="space-y-2 text-sm text-slate-200">
+            Sammendrag (NO)
+            <textarea
+              name="excerpt"
+              rows={3}
+              defaultValue={post.excerpt?.no ?? ""}
+              className="w-full rounded-xl border border-slate-800 bg-slate-950 px-4 py-2"
+            />
+          </label>
+          <label className="space-y-2 text-sm text-slate-200">
+            Sammendrag (EN)
+            <textarea
+              name="excerpt_en"
+              rows={3}
+              defaultValue={post.excerpt?.en ?? ""}
+              className="w-full rounded-xl border border-slate-800 bg-slate-950 px-4 py-2"
+            />
+          </label>
+        </div>
 
-        <MarkdownEditor
-          label="Innhold (Markdown)"
-          name="content"
-          rows={12}
-          defaultValue={post.content_md?.no ?? ""}
-        />
+        <div className="grid gap-6 lg:grid-cols-2">
+          <MarkdownEditor
+            label="Innhold (NO)"
+            name="content"
+            rows={12}
+            defaultValue={post.content_md?.no ?? ""}
+          />
+          <MarkdownEditor
+            label="Innhold (EN)"
+            name="content_en"
+            rows={12}
+            defaultValue={post.content_md?.en ?? ""}
+          />
+        </div>
 
         <div className="grid gap-4 md:grid-cols-3">
           <label className="space-y-2 text-sm text-slate-200">

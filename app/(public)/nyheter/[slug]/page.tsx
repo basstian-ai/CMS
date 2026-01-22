@@ -1,15 +1,15 @@
 import type { Metadata } from "next";
+import { cookies } from "next/headers";
 import { notFound } from "next/navigation";
 
 import { MarkdownRenderer } from "@/components/markdown-renderer";
 import { BodyText, Heading } from "@/components/ui/typography";
-import { getPostBySlug, resolveLocalizedField } from "@/lib/data";
+import { getPostBySlug, normalizeLocale, resolveLocalizedField } from "@/lib/data";
 import { toMetadataDescription } from "@/lib/utils/metadata";
 
 export const revalidate = 1800;
 
-const locale = "no";
-const fallbackLocale = "en";
+const fallbackLocale = "no";
 
 const formatPublishedDate = (publishedAt: string) =>
   new Intl.DateTimeFormat("nb-NO", { dateStyle: "long" }).format(new Date(publishedAt));
@@ -18,10 +18,12 @@ type NewsDetailPageProps = {
   params: {
     slug: string;
   };
+  searchParams?: { lang?: string | string[] };
 };
 
 export async function generateMetadata({
   params,
+  searchParams,
 }: NewsDetailPageProps): Promise<Metadata> {
   const post = await getPostBySlug(params.slug);
 
@@ -32,6 +34,9 @@ export async function generateMetadata({
     };
   }
 
+  const cookieLocale = cookies().get("lang")?.value;
+  const searchLocale = typeof searchParams?.lang === "string" ? searchParams.lang : null;
+  const locale = normalizeLocale(searchLocale ?? cookieLocale, fallbackLocale);
   const title =
     resolveLocalizedField(post.title, locale, fallbackLocale) ?? "Nyhet";
   const descriptionSource = resolveLocalizedField(
@@ -49,7 +54,13 @@ export async function generateMetadata({
   };
 }
 
-export default async function NewsDetailPage({ params }: NewsDetailPageProps) {
+export default async function NewsDetailPage({
+  params,
+  searchParams,
+}: NewsDetailPageProps) {
+  const cookieLocale = cookies().get("lang")?.value;
+  const searchLocale = typeof searchParams?.lang === "string" ? searchParams.lang : null;
+  const locale = normalizeLocale(searchLocale ?? cookieLocale, fallbackLocale);
   const post = await getPostBySlug(params.slug);
 
   if (!post) {
