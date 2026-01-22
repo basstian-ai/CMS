@@ -2,7 +2,6 @@
 import type { Route } from "next";
 import Link from "next/link";
 
-import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { BodyText, Heading, Subheading } from "@/components/ui/typography";
 import {
@@ -20,6 +19,14 @@ const quickLinks: Array<{ title: string; description: string; href: Route }> = [
 ];
 
 const locale = "no";
+
+const buttonBaseClasses =
+  "inline-flex items-center justify-center rounded-full px-5 py-2 text-sm font-semibold transition";
+const buttonVariants = {
+  primary: "bg-brand-600 text-white hover:bg-brand-700",
+  secondary: "bg-white text-slate-900 border border-slate-200 hover:bg-slate-50",
+  ghost: "text-slate-700 hover:bg-slate-100",
+};
 
 const formatEventDate = (date: string) =>
   new Intl.DateTimeFormat("nb-NO", {
@@ -57,8 +64,18 @@ export default async function HomePage() {
               {nextEventDescription}
             </BodyText>
             <div className="flex flex-wrap gap-3">
-              <Button>Se kalender</Button>
-              <Button variant="secondary">Bli med i fellesskapet</Button>
+              <Link
+                className={`${buttonBaseClasses} ${buttonVariants.primary}`}
+                href="/kalender"
+              >
+                Se kalender
+              </Link>
+              <Link
+                className={`${buttonBaseClasses} ${buttonVariants.secondary}`}
+                href="/kontakt"
+              >
+                Bli med i fellesskapet
+              </Link>
             </div>
           </div>
           <Card className="space-y-4">
@@ -69,7 +86,12 @@ export default async function HomePage() {
               <p className="text-sm uppercase tracking-[0.2em] text-slate-400">Denne uken</p>
               <Subheading>{nextEventTitle}</Subheading>
               <BodyText>{nextEventDate ? `${nextEventDate} · ${nextEventLocation}` : "Ingen publiserte arrangementer enda."}</BodyText>
-              <Button variant="ghost">Se kalender</Button>
+              <Link
+                className={`${buttonBaseClasses} ${buttonVariants.ghost}`}
+                href="/kalender"
+              >
+                Se kalender
+              </Link>
             </div>
           </Card>
         </div>
@@ -138,7 +160,12 @@ export default async function HomePage() {
                     </div>
                     <h3 className="text-lg font-semibold text-slate-900">{title}</h3>
                     <BodyText>{excerpt}</BodyText>
-                    <Button variant="ghost">Les mer</Button>
+                    <Link
+                      className={`${buttonBaseClasses} ${buttonVariants.ghost}`}
+                      href={`/nyheter/${post.slug}`}
+                    >
+                      Les mer
+                    </Link>
                   </Card>
                 );
               })
