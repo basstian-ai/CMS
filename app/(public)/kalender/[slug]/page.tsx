@@ -38,14 +38,15 @@ function formatEventDate(start: string, end: string | null) {
 }
 
 type CalendarDetailPageProps = {
-  params: Promise<{ slug: string }>;
+  params: {
+    slug: string;
+  };
 };
 
 export async function generateMetadata({
   params,
 }: CalendarDetailPageProps): Promise<Metadata> {
-  const { slug } = await params;
-  const event = await getEventBySlug(slug);
+  const event = await getEventBySlug(params.slug);
 
   if (!event) {
     return {
@@ -72,8 +73,7 @@ export async function generateMetadata({
 }
 
 export default async function CalendarDetailPage({ params }: CalendarDetailPageProps) {
-  const { slug } = await params;
-  const event = await getEventBySlug(slug);
+  const event = await getEventBySlug(params.slug);
 
   if (!event) {
     notFound();

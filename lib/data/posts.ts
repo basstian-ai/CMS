@@ -1,4 +1,4 @@
-import { createSupabasePublicClient } from "@/lib/supabase/server";
+import { createSupabaseServerClient } from "@/lib/supabase/server";
 import type { LocalizedField } from "@/lib/data/localization";
 
 export type PublicPost = {
@@ -25,7 +25,7 @@ const publishedFilter = {
 };
 
 export async function getLatestPosts(limit: number) {
-  const supabase = createSupabasePublicClient();
+  const supabase = createSupabaseServerClient();
   const { data, error } = await supabase
     .from("posts")
     .select("id, slug, title, excerpt, cover_image_path, published_at")
@@ -42,7 +42,7 @@ export async function getLatestPosts(limit: number) {
 }
 
 export async function getPublishedPosts() {
-  const supabase = createSupabasePublicClient();
+  const supabase = createSupabaseServerClient();
   const { data, error } = await supabase
     .from("posts")
     .select("id, slug, title, excerpt, cover_image_path, published_at")
@@ -58,7 +58,7 @@ export async function getPublishedPosts() {
 }
 
 export async function getPostBySlug(slug: string) {
-  const supabase = createSupabasePublicClient();
+  const supabase = createSupabaseServerClient();
   const { data, error } = await supabase
     .from("posts")
     .select("id, slug, title, content_md, cover_image_path, published_at")
