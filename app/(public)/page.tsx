@@ -5,6 +5,13 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { BodyText, Heading, Subheading } from "@/components/ui/typography";
+import {
+  getLatestPosts,
+  getUpcomingEvents,
+  resolveLocalizedField,
+} from "@/lib/data";
+
+export const revalidate = 600;
 
 const quickLinks: Array<{ title: string; description: string; href: Route }> = [
   { title: "Gi", description: "Støtt arbeidet med et engangsgave eller fast støtte.", href: "/gi" },
@@ -12,34 +19,42 @@ const quickLinks: Array<{ title: string; description: string; href: Route }> = [
   { title: "Meld deg på", description: "Påmelding til samlinger og arrangement.", href: "/kalender" },
 ];
 
-const news = [
-  {
-    title: "Høstprogram 2024",
-    summary: "Oppdag nye grupper og samlinger gjennom høsten.",
-  },
-  {
-    title: "Sommerfest i parken",
-    summary: "Vi samles til fellesskap, mat og aktiviteter for alle aldre.",
-  },
-  {
-    title: "Ny podcast-serie",
-    summary: "Hør siste taler og refleksjoner direkte fra scenen.",
-  },
-];
+const locale = "no";
 
-export default function HomePage() {
+const formatEventDate = (date: string) =>
+  new Intl.DateTimeFormat("nb-NO", {
+    weekday: "long",
+    day: "numeric",
+    month: "short",
+    hour: "2-digit",
+    minute: "2-digit",
+  }).format(new Date(date));
+
+export default async function HomePage() {
+  const [upcomingEvents, latestPosts] = await Promise.all([
+    getUpcomingEvents(1),
+    getLatestPosts(3),
+  ]);
+  const nextEvent = upcomingEvents[0] ?? null;
+  const nextEventTitle =
+    resolveLocalizedField(nextEvent?.title, locale) ?? "Neste samling";
+  const nextEventDescription =
+    resolveLocalizedField(nextEvent?.description_md, locale) ??
+    "Vi oppdaterer programmet snart. Følg med for detaljer om neste arrangement.";
+  const nextEventDate = nextEvent?.start_time ? formatEventDate(nextEvent.start_time) : null;
+  const nextEventLocation = nextEvent?.location ?? "Sted annonseres snart";
+
   return (
     <div>
       <section className="bg-white">
         <div className="container-layout grid gap-10 py-16 lg:grid-cols-[1.2fr_0.8fr] lg:items-center">
           <div className="space-y-6">
             <div className="inline-flex items-center gap-2 rounded-full bg-brand-50 px-4 py-1 text-sm font-medium text-brand-700">
-              Neste gudstjeneste · Søndag 11:00
+              {nextEventDate ? `Neste samling · ${nextEventDate}` : "Neste samling oppdateres"}
             </div>
             <Heading>Kirke midt i byen, mennesker i sentrum.</Heading>
             <BodyText>
-              Velkommen til Bykirken! Vi bygger fellesskap, tro og håp gjennom
-              samlinger, podcaster og lokale initiativ.
+              {nextEventDescription}
             </BodyText>
             <div className="flex flex-wrap gap-3">
               <Button>Se kalender</Button>
@@ -52,11 +67,9 @@ export default function HomePage() {
             </div>
             <div className="space-y-2">
               <p className="text-sm uppercase tracking-[0.2em] text-slate-400">Denne uken</p>
-              <Subheading>City Nights</Subheading>
-              <BodyText>
-                Felleskveld med lovsang og undervisning torsdag kl. 19:00.
-              </BodyText>
-              <Button variant="ghost">Les mer</Button>
+              <Subheading>{nextEventTitle}</Subheading>
+              <BodyText>{nextEventDate ? `${nextEventDate} · ${nextEventLocation}` : "Ingen publiserte arrangementer enda."}</BodyText>
+              <Button variant="ghost">Se kalender</Button>
             </div>
           </Card>
         </div>
@@ -64,8 +77,26 @@ export default function HomePage() {
 
       <section className="container-layout space-y-8 py-14">
         <div className="flex flex-col gap-2">
-          <Subheading>Kommende høydepunkter</Subheading>
-          <BodyText>Tre ting du ikke vil gå glipp av de neste ukene.</BodyText>
+          <Subheading>Kommende event</Subheading>
+          <BodyText>Hold av tid til neste samling i fellesskapet.</BodyText>
+        </div>
+        <Card className="space-y-3">
+          <h3 className="text-lg font-semibold text-slate-900">{nextEventTitle}</h3>
+          <BodyText>
+            {nextEventDate
+              ? `${nextEventDate} · ${nextEventLocation}`
+              : "Neste arrangement legges ut snart. Sjekk kalenderen for oppdateringer."}
+          </BodyText>
+          <Link className="text-sm font-semibold text-brand-600" href="/kalender">
+            Se hele kalenderen →
+          </Link>
+        </Card>
+      </section>
+
+      <section className="container-layout space-y-8 pb-14">
+        <div className="flex flex-col gap-2">
+          <Subheading>Snarveier</Subheading>
+          <BodyText>Raske veier til det viktigste akkurat nå.</BodyText>
         </div>
         <div className="grid gap-6 md:grid-cols-3">
           {quickLinks.map((link) => (
@@ -92,16 +123,33 @@ export default function HomePage() {
 
           </div>
           <div className="grid gap-6 md:grid-cols-3">
-            {news.map((item) => (
-              <Card key={item.title} className="space-y-3">
-                <div className="rounded-xl bg-slate-100 px-4 py-6 text-sm text-slate-500">
-                  Bilde
-                </div>
-                <h3 className="text-lg font-semibold text-slate-900">{item.title}</h3>
-                <BodyText>{item.summary}</BodyText>
-                <Button variant="ghost">Les mer</Button>
+            {latestPosts.length ? (
+              latestPosts.map((post) => {
+                const title =
+                  resolveLocalizedField(post.title, locale) ?? "Nyhet";
+                const excerpt =
+                  resolveLocalizedField(post.excerpt, locale) ??
+                  "Siste oppdateringer fra Bykirken kommer snart.";
+
+                return (
+                  <Card key={post.id} className="space-y-3">
+                    <div className="rounded-xl bg-slate-100 px-4 py-6 text-sm text-slate-500">
+                      {post.cover_image_path ? "Bilde tilgjengelig" : "Bilde"}
+                    </div>
+                    <h3 className="text-lg font-semibold text-slate-900">{title}</h3>
+                    <BodyText>{excerpt}</BodyText>
+                    <Button variant="ghost">Les mer</Button>
+                  </Card>
+                );
+              })
+            ) : (
+              <Card className="space-y-3 md:col-span-3">
+                <h3 className="text-lg font-semibold text-slate-900">Ingen nyheter enda</h3>
+                <BodyText>
+                  Vi jobber med nye historier og oppdateringer. Kom tilbake snart!
+                </BodyText>
               </Card>
-            ))}
+            )}
           </div>
         </div>
       </section>

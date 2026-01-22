@@ -25,6 +25,15 @@ export function createSupabaseServerClient() {
   });
 }
 
+export function createSupabasePublicClient() {
+  return createClient(supabaseUrl, supabaseAnonKey, {
+    auth: {
+      persistSession: false,
+      autoRefreshToken: false,
+    },
+  });
+}
+
 export function createSupabaseAdminClient() {
   return createClient(supabaseUrl, supabaseServiceRoleKey, {
     auth: {
