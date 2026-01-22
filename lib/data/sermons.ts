@@ -20,13 +20,13 @@ const publishedFilter = {
 
 export async function getLatestSermons(limit: number) {
   const supabase = createSupabaseServerClient();
+  const now = publishedFilter.now();
   const { data, error } = await supabase
     .from("sermons")
     .select(
       "id, slug, title, preacher, bible_ref, description, published_at, audio_path, external_spotify_url, external_apple_url, duration_seconds",
     )
-    .not("published_at", "is", null)
-    .lte("published_at", publishedFilter.now())
+    .or(`published_at.is.null,published_at.lte.${now}`)
     .order("published_at", { ascending: false })
     .limit(limit);
 
@@ -39,14 +39,14 @@ export async function getLatestSermons(limit: number) {
 
 export async function getSermonBySlug(slug: string) {
   const supabase = createSupabaseServerClient();
+  const now = publishedFilter.now();
   const { data, error } = await supabase
     .from("sermons")
     .select(
       "id, slug, title, preacher, bible_ref, description, published_at, audio_path, external_spotify_url, external_apple_url, duration_seconds",
     )
     .eq("slug", slug)
-    .not("published_at", "is", null)
-    .lte("published_at", publishedFilter.now())
+    .or(`published_at.is.null,published_at.lte.${now}`)
     .maybeSingle();
 
   if (error) {

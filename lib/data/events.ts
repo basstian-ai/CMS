@@ -20,13 +20,14 @@ const publishedFilter = {
 export async function getUpcomingEvents(limit: number) {
   const supabase = createSupabaseServerClient();
   const now = publishedFilter.now();
+  const publishedAtFilter = `published_at.is.null,published_at.lte.${now}`;
   const { data, error } = await supabase
     .from("events")
     .select(
       "id, slug, title, description_md, start_time, end_time, location, published_at",
     )
     .eq("status", publishedFilter.status)
-    .lte("published_at", now)
+    .or(publishedAtFilter)
     .gte("start_time", now)
     .order("start_time", { ascending: true })
     .limit(limit);
@@ -40,6 +41,7 @@ export async function getUpcomingEvents(limit: number) {
 
 export async function getEventBySlug(slug: string) {
   const supabase = createSupabaseServerClient();
+  const now = publishedFilter.now();
   const { data, error } = await supabase
     .from("events")
     .select(
@@ -47,7 +49,7 @@ export async function getEventBySlug(slug: string) {
     )
     .eq("slug", slug)
     .eq("status", publishedFilter.status)
-    .lte("published_at", publishedFilter.now())
+    .or(`published_at.is.null,published_at.lte.${now}`)
     .maybeSingle();
 
   if (error) {

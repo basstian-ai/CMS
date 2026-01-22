@@ -16,12 +16,13 @@ const publishedFilter = {
 
 export async function getPageBySlug(slug: string) {
   const supabase = createSupabaseServerClient();
+  const now = publishedFilter.now();
   const { data, error } = await supabase
     .from("pages")
     .select("id, slug, title, content_md, published_at")
     .eq("slug", slug)
     .eq("status", publishedFilter.status)
-    .lte("published_at", publishedFilter.now())
+    .or(`published_at.is.null,published_at.lte.${now}`)
     .maybeSingle();
 
   if (error) {
