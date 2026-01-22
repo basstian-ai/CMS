@@ -30,8 +30,10 @@ export async function createEvent(formData: FormData) {
   const { data: userData } = await supabase.auth.getUser();
 
   const title = formData.get("title")?.toString().trim() ?? "";
+  const titleEn = formData.get("title_en")?.toString().trim() ?? "";
   const slug = formData.get("slug")?.toString().trim() ?? "";
   const description = formData.get("description")?.toString().trim() ?? "";
+  const descriptionEn = formData.get("description_en")?.toString().trim() ?? "";
   const startTime = normalizeDate(formData.get("start_time")?.toString() ?? null);
   const endTime = normalizeDate(formData.get("end_time")?.toString() ?? null);
   const location = formData.get("location")?.toString().trim() ?? "";
@@ -42,8 +44,8 @@ export async function createEvent(formData: FormData) {
     .from("events")
     .insert({
       slug,
-      title: { no: title },
-      description_md: { no: description },
+      title: { no: title, en: titleEn || null },
+      description_md: { no: description, en: descriptionEn || null },
       start_time: startTime,
       end_time: endTime,
       location: location || null,
@@ -67,8 +69,10 @@ export async function updateEvent(eventId: string, formData: FormData) {
   const { data: userData } = await supabase.auth.getUser();
 
   const title = formData.get("title")?.toString().trim() ?? "";
+  const titleEn = formData.get("title_en")?.toString().trim() ?? "";
   const slug = formData.get("slug")?.toString().trim() ?? "";
   const description = formData.get("description")?.toString().trim() ?? "";
+  const descriptionEn = formData.get("description_en")?.toString().trim() ?? "";
   const startTime = normalizeDate(formData.get("start_time")?.toString() ?? null);
   const endTime = normalizeDate(formData.get("end_time")?.toString() ?? null);
   const location = formData.get("location")?.toString().trim() ?? "";
@@ -79,8 +83,8 @@ export async function updateEvent(eventId: string, formData: FormData) {
     .from("events")
     .update({
       slug,
-      title: { no: title },
-      description_md: { no: description },
+      title: { no: title, en: titleEn || null },
+      description_md: { no: description, en: descriptionEn || null },
       start_time: startTime,
       end_time: endTime,
       location: location || null,

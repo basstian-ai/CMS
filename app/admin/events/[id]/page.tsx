@@ -65,6 +65,16 @@ export default async function EventDetailPage({
             />
           </label>
           <label className="space-y-2 text-sm text-slate-200">
+            Tittel (EN)
+            <input
+              name="title_en"
+              defaultValue={event.title?.en ?? ""}
+              className="w-full rounded-xl border border-slate-800 bg-slate-950 px-4 py-2"
+            />
+          </label>
+        </div>
+        <div className="grid gap-4 md:grid-cols-2">
+          <label className="space-y-2 text-sm text-slate-200">
             Slug
             <input
               name="slug"
@@ -75,12 +85,20 @@ export default async function EventDetailPage({
           </label>
         </div>
 
-        <MarkdownEditor
-          label="Beskrivelse (Markdown)"
-          name="description"
-          rows={8}
-          defaultValue={event.description_md?.no ?? ""}
-        />
+        <div className="grid gap-6 lg:grid-cols-2">
+          <MarkdownEditor
+            label="Beskrivelse (NO)"
+            name="description"
+            rows={8}
+            defaultValue={event.description_md?.no ?? ""}
+          />
+          <MarkdownEditor
+            label="Beskrivelse (EN)"
+            name="description_en"
+            rows={8}
+            defaultValue={event.description_md?.en ?? ""}
+          />
+        </div>
 
         <div className="grid gap-4 md:grid-cols-2">
           <label className="space-y-2 text-sm text-slate-200">

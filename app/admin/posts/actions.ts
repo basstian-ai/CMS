@@ -66,9 +66,12 @@ export async function createPost(formData: FormData) {
   const { adminClient, userId } = await requireEditorUser();
 
   const title = formData.get("title")?.toString().trim() ?? "";
+  const titleEn = formData.get("title_en")?.toString().trim() ?? "";
   const slug = formData.get("slug")?.toString().trim() ?? "";
   const excerpt = formData.get("excerpt")?.toString().trim() ?? "";
+  const excerptEn = formData.get("excerpt_en")?.toString().trim() ?? "";
   const content = formData.get("content")?.toString().trim() ?? "";
+  const contentEn = formData.get("content_en")?.toString().trim() ?? "";
   const status = normalizeStatus(formData.get("status")?.toString() ?? null);
   const publishedAt = normalizePublishedAt(
     status,
@@ -80,9 +83,9 @@ export async function createPost(formData: FormData) {
     .from("posts")
     .insert({
       slug,
-      title: { no: title },
-      excerpt: { no: excerpt },
-      content_md: { no: content },
+      title: { no: title, en: titleEn || null },
+      excerpt: { no: excerpt, en: excerptEn || null },
+      content_md: { no: content, en: contentEn || null },
       status,
       published_at: publishedAt,
       cover_image_path: coverImagePath || null,
@@ -104,9 +107,12 @@ export async function updatePost(postId: string, formData: FormData) {
   const { adminClient, userId } = await requireEditorUser();
 
   const title = formData.get("title")?.toString().trim() ?? "";
+  const titleEn = formData.get("title_en")?.toString().trim() ?? "";
   const slug = formData.get("slug")?.toString().trim() ?? "";
   const excerpt = formData.get("excerpt")?.toString().trim() ?? "";
+  const excerptEn = formData.get("excerpt_en")?.toString().trim() ?? "";
   const content = formData.get("content")?.toString().trim() ?? "";
+  const contentEn = formData.get("content_en")?.toString().trim() ?? "";
   const status = normalizeStatus(formData.get("status")?.toString() ?? null);
   const publishedAt = normalizePublishedAt(
     status,
@@ -118,9 +124,9 @@ export async function updatePost(postId: string, formData: FormData) {
     .from("posts")
     .update({
       slug,
-      title: { no: title },
-      excerpt: { no: excerpt },
-      content_md: { no: content },
+      title: { no: title, en: titleEn || null },
+      excerpt: { no: excerpt, en: excerptEn || null },
+      content_md: { no: content, en: contentEn || null },
       status,
       published_at: publishedAt,
       cover_image_path: coverImagePath || null,

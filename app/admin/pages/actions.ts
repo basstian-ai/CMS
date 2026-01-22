@@ -30,8 +30,10 @@ export async function createPage(formData: FormData) {
   const { data: userData } = await supabase.auth.getUser();
 
   const title = formData.get("title")?.toString().trim() ?? "";
+  const titleEn = formData.get("title_en")?.toString().trim() ?? "";
   const slug = formData.get("slug")?.toString().trim() ?? "";
   const content = formData.get("content")?.toString().trim() ?? "";
+  const contentEn = formData.get("content_en")?.toString().trim() ?? "";
   const status = normalizeStatus(formData.get("status")?.toString() ?? null);
   const publishedAt = normalizeDate(formData.get("published_at")?.toString() ?? null);
 
@@ -39,8 +41,8 @@ export async function createPage(formData: FormData) {
     .from("pages")
     .insert({
       slug,
-      title: { no: title },
-      content_md: { no: content },
+      title: { no: title, en: titleEn || null },
+      content_md: { no: content, en: contentEn || null },
       status,
       published_at: publishedAt,
       updated_by: userData?.user?.id ?? null,
@@ -61,8 +63,10 @@ export async function updatePage(pageId: string, formData: FormData) {
   const { data: userData } = await supabase.auth.getUser();
 
   const title = formData.get("title")?.toString().trim() ?? "";
+  const titleEn = formData.get("title_en")?.toString().trim() ?? "";
   const slug = formData.get("slug")?.toString().trim() ?? "";
   const content = formData.get("content")?.toString().trim() ?? "";
+  const contentEn = formData.get("content_en")?.toString().trim() ?? "";
   const status = normalizeStatus(formData.get("status")?.toString() ?? null);
   const publishedAt = normalizeDate(formData.get("published_at")?.toString() ?? null);
 
@@ -70,8 +74,8 @@ export async function updatePage(pageId: string, formData: FormData) {
     .from("pages")
     .update({
       slug,
-      title: { no: title },
-      content_md: { no: content },
+      title: { no: title, en: titleEn || null },
+      content_md: { no: content, en: contentEn || null },
       status,
       published_at: publishedAt,
       updated_by: userData?.user?.id ?? null,

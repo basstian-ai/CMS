@@ -1,15 +1,15 @@
 import type { Metadata } from "next";
+import { cookies } from "next/headers";
 import { notFound } from "next/navigation";
 
 import { MarkdownRenderer } from "@/components/markdown-renderer";
 import { Heading } from "@/components/ui/typography";
-import { getEventBySlug, resolveLocalizedField } from "@/lib/data";
+import { getEventBySlug, normalizeLocale, resolveLocalizedField } from "@/lib/data";
 import { toMetadataDescription } from "@/lib/utils/metadata";
 
 export const revalidate = 1800;
 
-const locale = "no";
-const fallbackLocale = "en";
+const fallbackLocale = "no";
 
 function formatEventDate(start: string, end: string | null) {
   const startDate = new Date(start);
@@ -41,10 +41,12 @@ type CalendarDetailPageProps = {
   params: {
     slug: string;
   };
+  searchParams?: { lang?: string | string[] };
 };
 
 export async function generateMetadata({
   params,
+  searchParams,
 }: CalendarDetailPageProps): Promise<Metadata> {
   const event = await getEventBySlug(params.slug);
 
@@ -55,6 +57,9 @@ export async function generateMetadata({
     };
   }
 
+  const cookieLocale = cookies().get("lang")?.value;
+  const searchLocale = typeof searchParams?.lang === "string" ? searchParams.lang : null;
+  const locale = normalizeLocale(searchLocale ?? cookieLocale, fallbackLocale);
   const title =
     resolveLocalizedField(event.title, locale, fallbackLocale) ?? "Arrangement";
   const descriptionSource = resolveLocalizedField(
@@ -72,7 +77,13 @@ export async function generateMetadata({
   };
 }
 
-export default async function CalendarDetailPage({ params }: CalendarDetailPageProps) {
+export default async function CalendarDetailPage({
+  params,
+  searchParams,
+}: CalendarDetailPageProps) {
+  const cookieLocale = cookies().get("lang")?.value;
+  const searchLocale = typeof searchParams?.lang === "string" ? searchParams.lang : null;
+  const locale = normalizeLocale(searchLocale ?? cookieLocale, fallbackLocale);
   const event = await getEventBySlug(params.slug);
 
   if (!event) {
