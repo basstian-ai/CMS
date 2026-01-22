@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 
+import { MarkdownRenderer } from "@/components/markdown-renderer";
 import { BodyText, Heading } from "@/components/ui/typography";
 import { getPostBySlug, resolveLocalizedField } from "@/lib/data";
 
@@ -48,11 +49,7 @@ export default async function NewsDetailPage({ params }: NewsDetailPageProps) {
         />
       ) : null}
 
-      <div className="space-y-4">
-        <p className="whitespace-pre-line text-base leading-relaxed text-slate-700">
-          {content}
-        </p>
-      </div>
+      <MarkdownRenderer content={content} className="space-y-4" />
     </article>
   );
 }

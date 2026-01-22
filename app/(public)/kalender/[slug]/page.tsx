@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 
-import { BodyText, Heading } from "@/components/ui/typography";
+import { MarkdownRenderer } from "@/components/markdown-renderer";
+import { Heading } from "@/components/ui/typography";
 import { getEventBySlug, resolveLocalizedField } from "@/lib/data";
 
 export const revalidate = 1800;
@@ -61,7 +62,7 @@ export default async function CalendarDetailPage({ params }: CalendarDetailPageP
         </div>
       </header>
 
-      <BodyText className="max-w-3xl whitespace-pre-line">{description}</BodyText>
+      <MarkdownRenderer content={description} className="max-w-3xl" />
     </section>
   );
 }
