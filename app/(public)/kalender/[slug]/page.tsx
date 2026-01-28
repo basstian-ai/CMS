@@ -99,7 +99,7 @@ export default async function CalendarDetailPage({
     <section className="container-layout space-y-8 py-16">
       <header className="space-y-3">
         <Heading>{title}</Heading>
-        <div className="space-y-1 text-sm text-slate-500">
+        <div className="space-y-1 text-sm text-stone-500">
           <p>{formatEventDate(event.start_time, event.end_time)}</p>
           {event.location ? <p>{event.location}</p> : null}
         </div>

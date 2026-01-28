@@ -26,8 +26,8 @@ const buttonBaseClasses =
   "inline-flex items-center justify-center rounded-full px-5 py-2 text-sm font-semibold transition";
 const buttonVariants = {
   primary: "bg-brand-600 text-white hover:bg-brand-700",
-  secondary: "bg-white text-slate-900 border border-slate-200 hover:bg-slate-50",
-  ghost: "text-slate-700 hover:bg-slate-100",
+  secondary: "bg-[#fffaf3] text-stone-900 border border-[#e6ddcf] hover:bg-[#f2e9dc]",
+  ghost: "text-stone-700 hover:bg-[#efe5d8]",
 };
 
 const formatEventDate = (date: string) =>
@@ -62,7 +62,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
 
   return (
     <div>
-      <section className="bg-white">
+      <section className="bg-[#fffaf3]">
         <div className="container-layout grid gap-10 py-16 lg:grid-cols-[1.2fr_0.8fr] lg:items-center">
           <div className="space-y-6">
             <div className="inline-flex items-center gap-2 rounded-full bg-brand-50 px-4 py-1 text-sm font-medium text-brand-700">
@@ -88,11 +88,11 @@ export default async function HomePage({ searchParams }: HomePageProps) {
             </div>
           </div>
           <Card className="space-y-4">
-            <div className="rounded-xl bg-slate-100 px-4 py-8 text-center text-sm font-medium text-slate-500">
+            <div className="rounded-xl bg-[#efe5d8] px-4 py-8 text-center text-sm font-medium text-stone-600">
               Bilde/illustrasjon
             </div>
             <div className="space-y-2">
-              <p className="text-sm uppercase tracking-[0.2em] text-slate-400">Denne uken</p>
+              <p className="text-sm uppercase tracking-[0.2em] text-stone-500">Denne uken</p>
               <Subheading>{nextEventTitle}</Subheading>
               <BodyText>{nextEventDate ? `${nextEventDate} · ${nextEventLocation}` : "Ingen publiserte arrangementer enda."}</BodyText>
               <Link
@@ -112,13 +112,13 @@ export default async function HomePage({ searchParams }: HomePageProps) {
           <BodyText>Hold av tid til neste samling i fellesskapet.</BodyText>
         </div>
         <Card className="space-y-3">
-          <h3 className="text-lg font-semibold text-slate-900">{nextEventTitle}</h3>
+          <h3 className="text-lg font-semibold text-stone-900">{nextEventTitle}</h3>
           <BodyText>
             {nextEventDate
               ? `${nextEventDate} · ${nextEventLocation}`
               : "Neste arrangement legges ut snart. Sjekk kalenderen for oppdateringer."}
           </BodyText>
-          <Link className="text-sm font-semibold text-brand-600" href="/kalender">
+          <Link className="text-sm font-semibold text-brand-700" href="/kalender">
             Se hele kalenderen →
           </Link>
         </Card>
@@ -132,10 +132,10 @@ export default async function HomePage({ searchParams }: HomePageProps) {
         <div className="grid gap-6 md:grid-cols-3">
           {quickLinks.map((link) => (
             <Card key={link.title} className="space-y-3">
-              <h3 className="text-lg font-semibold text-slate-900">{link.title}</h3>
+              <h3 className="text-lg font-semibold text-stone-900">{link.title}</h3>
               <BodyText>{link.description}</BodyText>
 
-              <Link className="text-sm font-semibold text-brand-600" href={link.href}>
+              <Link className="text-sm font-semibold text-brand-700" href={link.href}>
                 Gå til {link.title.toLowerCase()} →
               </Link>
 
@@ -144,11 +144,11 @@ export default async function HomePage({ searchParams }: HomePageProps) {
         </div>
       </section>
 
-      <section className="bg-white">
+      <section className="bg-[#fffaf3]">
         <div className="container-layout space-y-8 py-14">
           <div className="flex items-center justify-between">
             <Subheading>Siste nyheter</Subheading>
-            <Link className="text-sm font-semibold text-brand-600" href="/nyheter">
+            <Link className="text-sm font-semibold text-brand-700" href="/nyheter">
               Se alle nyheter
             </Link>
 
@@ -164,10 +164,10 @@ export default async function HomePage({ searchParams }: HomePageProps) {
 
                 return (
                   <Card key={post.id} className="space-y-3">
-                    <div className="rounded-xl bg-slate-100 px-4 py-6 text-sm text-slate-500">
+                    <div className="rounded-xl bg-[#efe5d8] px-4 py-6 text-sm text-stone-600">
                       {post.cover_image_path ? "Bilde tilgjengelig" : "Bilde"}
                     </div>
-                    <h3 className="text-lg font-semibold text-slate-900">{title}</h3>
+                    <h3 className="text-lg font-semibold text-stone-900">{title}</h3>
                     <BodyText>{excerpt}</BodyText>
                     <Link
                       className={`${buttonBaseClasses} ${buttonVariants.ghost}`}
@@ -180,7 +180,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
               })
             ) : (
               <Card className="space-y-3 md:col-span-3">
-                <h3 className="text-lg font-semibold text-slate-900">Ingen nyheter enda</h3>
+                <h3 className="text-lg font-semibold text-stone-900">Ingen nyheter enda</h3>
                 <BodyText>
                   Vi jobber med nye historier og oppdateringer. Kom tilbake snart!
                 </BodyText>

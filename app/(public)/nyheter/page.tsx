@@ -56,15 +56,15 @@ export default async function NewsPage({ searchParams }: NewsPageProps) {
                     loading="lazy"
                   />
                 ) : (
-                  <div className="flex h-48 items-center justify-center rounded-xl bg-slate-100 text-sm text-slate-500">
+                  <div className="flex h-48 items-center justify-center rounded-xl bg-[#efe5d8] text-sm text-stone-600">
                     Ingen cover-bilde
                   </div>
                 )}
                 <div className="flex flex-1 flex-col gap-3">
-                  <h2 className="text-lg font-semibold text-slate-900">{title}</h2>
+                  <h2 className="text-lg font-semibold text-stone-900">{title}</h2>
                   <BodyText>{excerpt}</BodyText>
                 </div>
-                <Link className="text-sm font-semibold text-brand-600" href={`/nyheter/${post.slug}`}>
+                <Link className="text-sm font-semibold text-brand-700" href={`/nyheter/${post.slug}`}>
                   Les mer →
                 </Link>
               </Card>
@@ -73,7 +73,7 @@ export default async function NewsPage({ searchParams }: NewsPageProps) {
         </div>
       ) : (
         <Card className="space-y-3">
-          <h2 className="text-lg font-semibold text-slate-900">Ingen nyheter enda</h2>
+          <h2 className="text-lg font-semibold text-stone-900">Ingen nyheter enda</h2>
           <BodyText>
             Vi jobber med nye historier og oppdateringer. Kom tilbake snart!
           </BodyText>

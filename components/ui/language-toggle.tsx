@@ -49,7 +49,7 @@ export function LanguageToggle() {
   };
 
   return (
-    <div className="flex items-center gap-1 rounded-full bg-slate-100 p-1 text-xs font-semibold text-slate-600">
+    <div className="flex items-center gap-1 rounded-full bg-[#efe5d8] p-1 text-xs font-semibold text-stone-700">
       {locales.map((locale) => {
         const isActive = currentLocale === locale.value;
         return (
@@ -60,8 +60,8 @@ export function LanguageToggle() {
             className={cn(
               "rounded-full px-3 py-1 transition",
               isActive
-                ? "bg-white text-slate-900 shadow-sm"
-                : "text-slate-600 hover:text-slate-900"
+                ? "bg-white text-stone-900 shadow-sm"
+                : "text-stone-600 hover:text-stone-900"
             )}
           >
             {locale.label}

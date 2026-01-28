@@ -56,7 +56,7 @@ export default async function PodcastDetailPage({ params }: PodcastDetailPagePro
     <section className="container-layout space-y-10 py-16">
       <header className="space-y-3">
         <Heading>{sermon.title}</Heading>
-        <div className="space-y-1 text-sm text-slate-500">
+        <div className="space-y-1 text-sm text-stone-500">
           <p>{sermon.preacher ?? "Ukjent taler"}</p>
           <p>
             {publishedAt ? `Publisert ${publishedAt}` : "Publiseringsdato kommer snart"}
@@ -86,7 +86,7 @@ export default async function PodcastDetailPage({ params }: PodcastDetailPagePro
             {sermon.external_spotify_url ? (
               <a
                 href={sermon.external_spotify_url}
-                className="rounded-full border border-slate-200 px-4 py-2 text-slate-700 transition hover:border-slate-300"
+                className="rounded-full border border-[#e6ddcf] px-4 py-2 text-stone-700 transition hover:border-[#d6c8b5]"
                 target="_blank"
                 rel="noreferrer"
               >
@@ -96,7 +96,7 @@ export default async function PodcastDetailPage({ params }: PodcastDetailPagePro
             {sermon.external_apple_url ? (
               <a
                 href={sermon.external_apple_url}
-                className="rounded-full border border-slate-200 px-4 py-2 text-slate-700 transition hover:border-slate-300"
+                className="rounded-full border border-[#e6ddcf] px-4 py-2 text-stone-700 transition hover:border-[#d6c8b5]"
                 target="_blank"
                 rel="noreferrer"
               >
