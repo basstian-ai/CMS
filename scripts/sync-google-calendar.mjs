@@ -40,11 +40,11 @@ function formatDateToken(date) {
 
 function buildSlug(summary, startTime, uid) {
   const base = summary ? toSlug(summary) : "arrangement";
-  if (startTime) {
-    return `${base}-${formatDateToken(startTime)}`;
-  }
   if (uid) {
     return `${base}-${uid.split("@")[0]}`;
+  }
+  if (startTime) {
+    return `${base}-${formatDateToken(startTime)}`;
   }
   return `${base}-${Date.now()}`;
 }
@@ -65,7 +65,7 @@ async function run() {
   console.log(`Fetching calendar from ${CALENDAR_URL}`);
   const calendarData = await ical.async.fromURL(CALENDAR_URL);
   const events = Object.values(calendarData).filter(
-    (entry) => entry?.type === "VEVENT" && !isCancelled(entry),
+    (entry) => entry?.type === "VEVENT",
   );
 
   const records = events.map((event) => {
@@ -74,6 +74,7 @@ async function run() {
     const startTime = toIsoDate(event.start);
     const endTime = toIsoDate(event.end);
     const slug = buildSlug(title, event.start, event.uid);
+    const status = isCancelled(event) ? "cancelled" : "published";
 
     return {
       slug,
@@ -85,8 +86,8 @@ async function run() {
       start_time: startTime,
       end_time: endTime,
       location: event.location?.trim() || null,
-      status: "published",
-      published_at: now.toISOString(),
+      status,
+      published_at: status === "published" ? now.toISOString() : null,
     };
   });
 
@@ -103,7 +104,12 @@ async function run() {
     throw error;
   }
 
-  console.log(`Synced ${records.length} events.`);
+  const cancelledCount = records.filter(
+    (record) => record.status === "cancelled",
+  ).length;
+  console.log(
+    `Synced ${records.length} events (${cancelledCount} cancelled).`,
+  );
 }
 
 run().catch((error) => {
