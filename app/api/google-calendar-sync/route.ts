@@ -115,14 +115,13 @@ async function syncGoogleCalendar() {
 }
 
 export async function GET(request: Request) {
-  if (CRON_SECRET) {
-    const { searchParams } = new URL(request.url);
-    const token =
-      request.headers.get("x-cron-secret") || searchParams.get("secret");
+  const { searchParams } = new URL(request.url);
+  const token =
+    request.headers.get("x-cron-secret") || searchParams.get("secret");
+  const isVercelCron = request.headers.get("x-vercel-cron") === "1";
 
-    if (token !== CRON_SECRET) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+  if (CRON_SECRET && token !== CRON_SECRET && !isVercelCron) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   try {
