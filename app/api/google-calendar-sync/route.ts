@@ -28,9 +28,18 @@ function formatDateToken(date: Date) {
   )}${pad(date.getUTCHours())}${pad(date.getUTCMinutes())}`;
 }
 
-function buildSlug(summary: string, startTime?: Date, uid?: string) {
+function buildSlug(
+  summary: string,
+  startTime?: Date,
+  uid?: string,
+  recurrenceId?: Date,
+) {
   const base = summary ? toSlug(summary) : "arrangement";
   if (uid) {
+    const tokenSource = recurrenceId ?? startTime;
+    if (tokenSource) {
+      return `${base}-${uid.split("@")[0]}-${formatDateToken(tokenSource)}`;
+    }
     return `${base}-${uid.split("@")[0]}`;
   }
   if (startTime) {
@@ -77,7 +86,7 @@ async function syncGoogleCalendar() {
     const description = event.description?.trim() || "";
     const startTime = toIsoDate(event.start);
     const endTime = toIsoDate(event.end);
-    const slug = buildSlug(title, event.start, event.uid);
+    const slug = buildSlug(title, event.start, event.uid, event.recurrenceid);
     const status = isCancelled(event) ? "cancelled" : "published";
 
     return {
