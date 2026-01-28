@@ -24,9 +24,23 @@ Kopier `.env.example` til `.env.local` og fyll inn følgende:
 ```bash
 NEXT_PUBLIC_SUPABASE_URL=
 NEXT_PUBLIC_SUPABASE_ANON_KEY=
+SUPABASE_URL=
 SUPABASE_SERVICE_ROLE_KEY=
 SUPABASE_JWT_SECRET=
 ```
+
+### Google Calendar → Supabase sync
+For å importere en offentlig Google Calendar til tabellen `events`, bruk skriptet under. Det henter en offentlig `.ics`-feed og oppdaterer `events` med `status = published`.
+
+Krav:
+- `SUPABASE_URL` og `SUPABASE_SERVICE_ROLE_KEY` må være satt (f.eks. i `.env.local`).
+- Valgfritt: `GOOGLE_CALENDAR_ICS_URL` for å overskrive standard-URLen i skriptet.
+
+```bash
+npm run sync:google-calendar
+```
+
+Skriptet bruker `slug` som unik nøkkel og gjør en `upsert`, så kjør det gjerne som et cron-jobb.
 
 
 ### Supabase (milepæl 2)
