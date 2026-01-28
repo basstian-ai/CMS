@@ -42,6 +42,16 @@ npm run sync:google-calendar
 
 Skriptet bruker `slug` som unik nøkkel og gjør en `upsert`, så kjør det gjerne som et cron-jobb.
 
+#### Automatisk cron i Vercel
+Prosjektet har en API-route på `/api/google-calendar-sync` og en cron-konfig i `vercel.json` som kjører daglig kl. 03:00 (UTC).
+
+For å få dette til å kjøre i produksjon:
+1. Legg inn `SUPABASE_URL` og `SUPABASE_SERVICE_ROLE_KEY` i Vercel (Production + Preview).
+2. (Valgfritt) Sett `GOOGLE_CALENDAR_ICS_URL` hvis du vil overstyre kalender-URL.
+3. (Valgfritt) Sett `CRON_SECRET` og bruk den for manuelle kall til API-ruten (`/api/google-calendar-sync?secret=...` eller `x-cron-secret` header).
+
+Vercel Cron-requests inkluderer `x-vercel-cron: 1`, så de vil fungere selv om du har satt `CRON_SECRET`.
+
 
 ### Supabase (milepæl 2)
 - Kjør migrasjonen i `db/migrations/0001_init.sql` i Supabase SQL editor.
