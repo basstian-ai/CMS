@@ -42,10 +42,10 @@ export default async function PodcastPage() {
             return (
               <Card key={sermon.id} className="flex h-full flex-col gap-4">
                 <div className="space-y-2">
-                  <h2 className="text-lg font-semibold text-slate-900">
+                  <h2 className="text-lg font-semibold text-stone-900">
                     {sermon.title}
                   </h2>
-                  <div className="text-sm text-slate-500">
+                  <div className="text-sm text-stone-500">
                     <p>{sermon.preacher ?? "Ukjent taler"}</p>
                     <p>
                       {publishedAt
@@ -55,7 +55,7 @@ export default async function PodcastPage() {
                   </div>
                 </div>
                 <Link
-                  className="text-sm font-semibold text-brand-600"
+                  className="text-sm font-semibold text-brand-700"
                   href={`/podcast/${sermon.slug}`}
                 >
                   Åpne episode →
@@ -66,7 +66,7 @@ export default async function PodcastPage() {
         </div>
       ) : (
         <Card className="space-y-3">
-          <h2 className="text-lg font-semibold text-slate-900">
+          <h2 className="text-lg font-semibold text-stone-900">
             Ingen episoder publisert ennå
           </h2>
           <BodyText>

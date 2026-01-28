@@ -8,8 +8,8 @@ type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
 
 const variants: Record<NonNullable<ButtonProps["variant"]>, string> = {
   primary: "bg-brand-600 text-white hover:bg-brand-700",
-  secondary: "bg-white text-slate-900 border border-slate-200 hover:bg-slate-50",
-  ghost: "text-slate-700 hover:bg-slate-100",
+  secondary: "bg-[#fffaf3] text-stone-900 border border-[#e6ddcf] hover:bg-[#f2e9dc]",
+  ghost: "text-stone-700 hover:bg-[#efe5d8]",
 };
 
 export function Button({

@@ -7,7 +7,8 @@
 }
 
 body {
-  @apply bg-slate-50 text-slate-900 antialiased;
+  @apply text-slate-900 antialiased;
+  background-color: #f7f3ed;
 }
 
 .container-layout {

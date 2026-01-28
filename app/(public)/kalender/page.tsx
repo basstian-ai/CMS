@@ -76,16 +76,16 @@ export default async function CalendarPage({ searchParams }: CalendarPageProps) 
             return (
               <Card key={event.id} className="flex h-full flex-col gap-4">
                 <div className="space-y-2">
-                  <h2 className="text-lg font-semibold text-slate-900">{title}</h2>
-                  <p className="text-sm text-slate-500">
+                  <h2 className="text-lg font-semibold text-stone-900">{title}</h2>
+                  <p className="text-sm text-stone-500">
                     {formatEventDate(event.start_time, event.end_time)}
                   </p>
                   {event.location ? (
-                    <p className="text-sm text-slate-500">{event.location}</p>
+                    <p className="text-sm text-stone-500">{event.location}</p>
                   ) : null}
                 </div>
                 <BodyText>{description}</BodyText>
-                <Link className="text-sm font-semibold text-brand-600" href={`/kalender/${event.slug}`}>
+                <Link className="text-sm font-semibold text-brand-700" href={`/kalender/${event.slug}`}>
                   Les mer →
                 </Link>
               </Card>
@@ -94,7 +94,7 @@ export default async function CalendarPage({ searchParams }: CalendarPageProps) 
         </div>
       ) : (
         <Card className="space-y-3">
-          <h2 className="text-lg font-semibold text-slate-900">Ingen kommende arrangementer</h2>
+          <h2 className="text-lg font-semibold text-stone-900">Ingen kommende arrangementer</h2>
           <BodyText>
             Vi legger snart ut nye datoer. Ta gjerne kontakt hvis du lurer på noe.
           </BodyText>
