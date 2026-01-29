@@ -1,6 +1,15 @@
 "use client";
 
-import { useId, useRef } from "react";
+import { useId, useRef, useState } from "react";
+import dynamic from "next/dynamic";
+
+const MarkdownRenderer = dynamic(
+  () =>
+    import("@/components/markdown-renderer").then(
+      (module) => module.MarkdownRenderer
+    ),
+  { ssr: false }
+);
 
 type MarkdownEditorProps = {
   label: string;
@@ -29,6 +38,7 @@ export function MarkdownEditor({
 }: MarkdownEditorProps) {
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
   const id = useId();
+  const [value, setValue] = useState(defaultValue);
 
   const applyFormatting = (before: string, after: string) => {
     const textarea = textareaRef.current;
@@ -45,6 +55,7 @@ export function MarkdownEditor({
     )}`;
 
     textarea.value = nextValue;
+    setValue(nextValue);
     textarea.focus();
     const cursor = start + before.length + selection.length + after.length;
     textarea.setSelectionRange(cursor, cursor);
@@ -65,18 +76,30 @@ export function MarkdownEditor({
           </button>
         ))}
       </div>
-      <textarea
-        ref={textareaRef}
-        id={id}
-        name={name}
-        required={required}
-        rows={rows}
-        defaultValue={defaultValue}
-        className="w-full rounded-xl border border-slate-800 bg-slate-950 px-4 py-2"
-      />
+      <div className="grid gap-4 lg:grid-cols-2">
+        <textarea
+          ref={textareaRef}
+          id={id}
+          name={name}
+          required={required}
+          rows={rows}
+          value={value}
+          onChange={(event) => setValue(event.target.value)}
+          className="w-full rounded-xl border border-slate-800 bg-slate-950 px-4 py-2"
+        />
+        <div className="rounded-xl border border-slate-800 bg-slate-950 p-4 text-slate-200">
+          {value.trim().length > 0 ? (
+            <MarkdownRenderer content={value} className="space-y-4" />
+          ) : (
+            <p className="text-sm text-slate-400">
+              Forhåndsvisningen oppdateres mens du skriver.
+            </p>
+          )}
+        </div>
+      </div>
       <p className="text-xs text-slate-400">
         {helperText ??
-          "Markdown støttes. Bruk **fet**, _kursiv_, [lenke](https://) og lister."}
+          "Markdown støttes. Bruk **fet**, _kursiv_, [lenke](https://), lister og se forhåndsvisningen."}
       </p>
     </label>
   );
