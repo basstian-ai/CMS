@@ -1,8 +1,15 @@
 "use client";
 
 import { useId, useRef, useState } from "react";
+import dynamic from "next/dynamic";
 
-import { MarkdownRenderer } from "@/components/markdown-renderer";
+const MarkdownRenderer = dynamic(
+  () =>
+    import("@/components/markdown-renderer").then(
+      (module) => module.MarkdownRenderer
+    ),
+  { ssr: false }
+);
 
 type MarkdownEditorProps = {
   label: string;
