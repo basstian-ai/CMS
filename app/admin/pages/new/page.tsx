@@ -48,8 +48,18 @@ export default function NewPage() {
         </div>
 
         <div className="grid gap-6 lg:grid-cols-2">
-          <MarkdownEditor label="Innhold (NO)" name="content" rows={12} />
-          <MarkdownEditor label="Innhold (EN)" name="content_en" rows={12} />
+          <MarkdownEditor
+            label="Innhold (NO)"
+            name="content"
+            recordId="page-new"
+            rows={12}
+          />
+          <MarkdownEditor
+            label="Innhold (EN)"
+            name="content_en"
+            recordId="page-new"
+            rows={12}
+          />
         </div>
 
         <div className="grid gap-4 md:grid-cols-2">

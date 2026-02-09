@@ -1,6 +1,6 @@
 "use client";
 
-import { useId, useRef, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 
 const MarkdownRenderer = dynamic(
@@ -14,6 +14,7 @@ const MarkdownRenderer = dynamic(
 type MarkdownEditorProps = {
   label: string;
   name: string;
+  recordId: string | number;
   defaultValue?: string;
   rows?: number;
   required?: boolean;
@@ -31,6 +32,7 @@ const toolbarActions = [
 export function MarkdownEditor({
   label,
   name,
+  recordId,
   defaultValue = "",
   rows = 10,
   required,
@@ -39,6 +41,110 @@ export function MarkdownEditor({
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
   const id = useId();
   const [value, setValue] = useState(defaultValue);
+  const initialValueRef = useRef(defaultValue);
+  const valueRef = useRef(value);
+  const storageKey = `markdown-draft:${name}:${recordId}`;
+
+  useEffect(() => {
+    valueRef.current = value;
+  }, [value]);
+
+  useEffect(() => {
+    initialValueRef.current = defaultValue;
+  }, [defaultValue]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    const storedDraft = localStorage.getItem(storageKey);
+    if (!storedDraft) {
+      setValue(defaultValue);
+      return;
+    }
+
+    try {
+      const parsedDraft = JSON.parse(storedDraft) as {
+        value?: unknown;
+        savedAt?: unknown;
+        serverValue?: unknown;
+      };
+
+      if (
+        typeof parsedDraft.value === "string" &&
+        typeof parsedDraft.savedAt === "number" &&
+        parsedDraft.serverValue === defaultValue
+      ) {
+        setValue(parsedDraft.value);
+        return;
+      }
+    } catch {
+      // Ignore malformed drafts.
+    }
+
+    localStorage.removeItem(storageKey);
+    setValue(defaultValue);
+  }, [defaultValue, storageKey]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    if (value === defaultValue) {
+      localStorage.removeItem(storageKey);
+      return;
+    }
+
+    const payload = {
+      value,
+      savedAt: Date.now(),
+      serverValue: defaultValue,
+    };
+    localStorage.setItem(storageKey, JSON.stringify(payload));
+  }, [defaultValue, storageKey, value]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    const textarea = textareaRef.current;
+    const form = textarea?.form ?? textarea?.closest("form");
+
+    if (!form) {
+      return;
+    }
+
+    const handleSubmit = () => {
+      localStorage.removeItem(storageKey);
+    };
+
+    form.addEventListener("submit", handleSubmit);
+    return () => {
+      form.removeEventListener("submit", handleSubmit);
+    };
+  }, [storageKey]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    const handleBeforeUnload = (event: BeforeUnloadEvent) => {
+      if (valueRef.current === initialValueRef.current) {
+        return;
+      }
+      event.preventDefault();
+      event.returnValue = "";
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+    };
+  }, []);
 
   const applyFormatting = (before: string, after: string) => {
     const textarea = textareaRef.current;

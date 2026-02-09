@@ -50,8 +50,18 @@ export default function NewEventPage() {
         </div>
 
         <div className="grid gap-6 lg:grid-cols-2">
-          <MarkdownEditor label="Beskrivelse (NO)" name="description" rows={8} />
-          <MarkdownEditor label="Beskrivelse (EN)" name="description_en" rows={8} />
+          <MarkdownEditor
+            label="Beskrivelse (NO)"
+            name="description"
+            recordId="event-new"
+            rows={8}
+          />
+          <MarkdownEditor
+            label="Beskrivelse (EN)"
+            name="description_en"
+            recordId="event-new"
+            rows={8}
+          />
         </div>
 
         <div className="grid gap-4 md:grid-cols-2">

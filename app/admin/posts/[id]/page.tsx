@@ -103,12 +103,14 @@ export default async function PostDetailPage({
           <MarkdownEditor
             label="Innhold (NO)"
             name="content"
+            recordId={`post-${post.id}`}
             rows={12}
             defaultValue={post.content_md?.no ?? ""}
           />
           <MarkdownEditor
             label="Innhold (EN)"
             name="content_en"
+            recordId={`post-${post.id}`}
             rows={12}
             defaultValue={post.content_md?.en ?? ""}
           />

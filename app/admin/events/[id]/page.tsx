@@ -87,12 +87,14 @@ export default async function EventDetailPage({
           <MarkdownEditor
             label="Beskrivelse (NO)"
             name="description"
+            recordId={`event-${event.id}`}
             rows={8}
             defaultValue={event.description_md?.no ?? ""}
           />
           <MarkdownEditor
             label="Beskrivelse (EN)"
             name="description_en"
+            recordId={`event-${event.id}`}
             rows={8}
             defaultValue={event.description_md?.en ?? ""}
           />
