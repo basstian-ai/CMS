@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 
 import { deleteEvent, updateEvent } from "@/app/admin/events/actions";
 import { MarkdownEditor } from "@/components/admin/markdown-editor";
+import { SlugField } from "@/components/admin/slug-field";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 function formatDateTime(value: string | null) {
@@ -74,15 +75,12 @@ export default async function EventDetailPage({
           </label>
         </div>
         <div className="grid gap-4 md:grid-cols-2">
-          <label className="space-y-2 text-sm text-slate-200">
-            Slug
-            <input
-              name="slug"
-              required
-              defaultValue={event.slug}
-              className="w-full rounded-xl border border-slate-800 bg-slate-950 px-4 py-2"
-            />
-          </label>
+          <SlugField
+            initialSlug={event.slug}
+            slugName="slug"
+            titleInputName="title"
+            required
+          />
         </div>
 
         <div className="grid gap-6 lg:grid-cols-2">

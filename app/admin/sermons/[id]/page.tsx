@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { deleteSermon, updateSermon } from "@/app/admin/sermons/actions";
+import { SlugField } from "@/components/admin/slug-field";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 function formatDateTime(value: string | null) {
@@ -60,15 +61,12 @@ export default async function SermonDetailPage({
               className="w-full rounded-xl border border-slate-800 bg-slate-950 px-4 py-2"
             />
           </label>
-          <label className="space-y-2 text-sm text-slate-200">
-            Slug
-            <input
-              name="slug"
-              required
-              defaultValue={sermon.slug}
-              className="w-full rounded-xl border border-slate-800 bg-slate-950 px-4 py-2"
-            />
-          </label>
+          <SlugField
+            initialSlug={sermon.slug}
+            slugName="slug"
+            titleInputName="title"
+            required
+          />
         </div>
 
         <div className="grid gap-4 md:grid-cols-2">
