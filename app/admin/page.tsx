@@ -74,6 +74,33 @@ export default async function AdminPage() {
         </p>
       </header>
 
+      <div className="flex flex-wrap gap-3">
+        <Link
+          href="/admin/posts/new"
+          className="rounded-full bg-white px-5 py-2 text-sm font-semibold text-slate-900"
+        >
+          New post
+        </Link>
+        <Link
+          href="/admin/events/new"
+          className="rounded-full bg-white px-5 py-2 text-sm font-semibold text-slate-900"
+        >
+          New event
+        </Link>
+        <Link
+          href="/admin/sermons/new"
+          className="rounded-full bg-white px-5 py-2 text-sm font-semibold text-slate-900"
+        >
+          New sermon
+        </Link>
+        <Link
+          href="/admin/pages/new"
+          className="rounded-full bg-white px-5 py-2 text-sm font-semibold text-slate-900"
+        >
+          New page
+        </Link>
+      </div>
+
       <div className="grid gap-4 md:grid-cols-2">
         {cards.map((card) => (
           <Link
