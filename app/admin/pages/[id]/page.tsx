@@ -82,12 +82,14 @@ export default async function PageDetailPage({
           <MarkdownEditor
             label="Innhold (NO)"
             name="content"
+            recordId={`page-${page.id}`}
             rows={12}
             defaultValue={page.content_md?.no ?? ""}
           />
           <MarkdownEditor
             label="Innhold (EN)"
             name="content_en"
+            recordId={`page-${page.id}`}
             rows={12}
             defaultValue={page.content_md?.en ?? ""}
           />
