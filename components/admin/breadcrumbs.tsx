@@ -2,10 +2,11 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import type { UrlObject } from "url";
 
 type Crumb = {
   label: string;
-  href?: string;
+  href?: UrlObject;
 };
 
 const labelMap: Record<string, string> = {
@@ -43,7 +44,7 @@ function buildCrumbs(pathname: string): Crumb[] {
     const isLast = index === segments.length - 1;
     crumbs.push({
       label,
-      href: isLast ? undefined : currentPath,
+      href: isLast ? undefined : { pathname: currentPath },
     });
   });
 
