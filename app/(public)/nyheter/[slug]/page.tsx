@@ -93,6 +93,7 @@ export default async function NewsDetailPage({
           width={1440}
           height={640}
           className="h-80 w-full rounded-2xl object-cover"
+          unoptimized
         />
       ) : null}
 
