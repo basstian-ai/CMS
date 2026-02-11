@@ -1,6 +1,7 @@
 
 import type { Route } from "next";
 import { cookies } from "next/headers";
+import Image from "next/image";
 import Link from "next/link";
 
 import { buttonVariants } from "@/components/ui/button";
@@ -22,6 +23,18 @@ const quickLinks: Array<{ title: string; description: string; href: Route }> = [
 ];
 
 const fallbackLocale = "no";
+
+const defaultEventImage =
+  "https://lfwpymqsqyuqevwuujkx.supabase.co/storage/v1/object/public/images/IMG_0395.png";
+const defaultPostImage = defaultEventImage;
+
+const buttonBaseClasses =
+  "inline-flex items-center justify-center rounded-full px-5 py-2 text-sm font-semibold transition";
+const buttonVariants = {
+  primary: "bg-brand-600 text-white hover:bg-brand-700",
+  secondary: "bg-[#fffaf3] text-stone-900 border border-[#e6ddcf] hover:bg-[#f2e9dc]",
+  ghost: "text-stone-700 hover:bg-[#efe5d8]",
+};
 
 const formatEventDate = (date: string) =>
   new Intl.DateTimeFormat("nb-NO", {
@@ -52,6 +65,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
     "Vi oppdaterer programmet snart. Følg med for detaljer om neste arrangement.";
   const nextEventDate = nextEvent?.start_time ? formatEventDate(nextEvent.start_time) : null;
   const nextEventLocation = nextEvent?.location ?? "Sted annonseres snart";
+  const nextEventImage = nextEvent?.cover_image_path ?? defaultEventImage;
 
   return (
     <div>
@@ -81,8 +95,14 @@ export default async function HomePage({ searchParams }: HomePageProps) {
             </div>
           </div>
           <Card className="space-y-4">
-            <div className="rounded-xl bg-[#efe5d8] px-4 py-8 text-center text-sm font-medium text-stone-600">
-              Bilde/illustrasjon
+            <div className="relative aspect-[4/3] overflow-hidden rounded-xl">
+              <Image
+                src={nextEventImage}
+                alt={nextEventTitle}
+                fill
+                sizes="(max-width: 1024px) 100vw, 30vw"
+                className="object-cover"
+              />
             </div>
             <div className="space-y-2">
               <p className="text-sm uppercase tracking-[0.2em] text-stone-500">Denne uken</p>
@@ -157,8 +177,14 @@ export default async function HomePage({ searchParams }: HomePageProps) {
 
                 return (
                   <Card key={post.id} className="space-y-3">
-                    <div className="rounded-xl bg-[#efe5d8] px-4 py-6 text-sm text-stone-600">
-                      {post.cover_image_path ? "Bilde tilgjengelig" : "Bilde"}
+                    <div className="relative h-40 overflow-hidden rounded-xl">
+                      <Image
+                        src={post.cover_image_path ?? defaultPostImage}
+                        alt={title}
+                        fill
+                        sizes="(max-width: 768px) 100vw, 33vw"
+                        className="object-cover"
+                      />
                     </div>
                     <h3 className="text-lg font-semibold text-stone-900">{title}</h3>
                     <BodyText>{excerpt}</BodyText>

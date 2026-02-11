@@ -37,6 +37,7 @@ export async function createEvent(formData: FormData) {
   const startTime = normalizeDate(formData.get("start_time")?.toString() ?? null);
   const endTime = normalizeDate(formData.get("end_time")?.toString() ?? null);
   const location = formData.get("location")?.toString().trim() ?? "";
+  const coverImagePath = formData.get("cover_image_path")?.toString().trim() ?? "";
   const status = normalizeStatus(formData.get("status")?.toString() ?? null);
   const publishedAt = normalizeDate(formData.get("published_at")?.toString() ?? null);
 
@@ -49,6 +50,7 @@ export async function createEvent(formData: FormData) {
       start_time: startTime,
       end_time: endTime,
       location: location || null,
+      cover_image_path: coverImagePath || null,
       status,
       published_at: publishedAt,
       updated_by: userData?.user?.id ?? null,
@@ -76,6 +78,7 @@ export async function updateEvent(eventId: string, formData: FormData) {
   const startTime = normalizeDate(formData.get("start_time")?.toString() ?? null);
   const endTime = normalizeDate(formData.get("end_time")?.toString() ?? null);
   const location = formData.get("location")?.toString().trim() ?? "";
+  const coverImagePath = formData.get("cover_image_path")?.toString().trim() ?? "";
   const status = normalizeStatus(formData.get("status")?.toString() ?? null);
   const publishedAt = normalizeDate(formData.get("published_at")?.toString() ?? null);
 
@@ -88,6 +91,7 @@ export async function updateEvent(eventId: string, formData: FormData) {
       start_time: startTime,
       end_time: endTime,
       location: location || null,
+      cover_image_path: coverImagePath || null,
       status,
       published_at: publishedAt,
       updated_by: userData?.user?.id ?? null,
