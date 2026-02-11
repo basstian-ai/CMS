@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { cookies } from "next/headers";
 import Link from "next/link";
 
+import { buttonVariants } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { BodyText, Heading } from "@/components/ui/typography";
 import { getPublishedPosts, normalizeLocale, resolveLocalizedField } from "@/lib/data";
@@ -64,8 +65,8 @@ export default async function NewsPage({ searchParams }: NewsPageProps) {
                   <h2 className="text-lg font-semibold text-stone-900">{title}</h2>
                   <BodyText>{excerpt}</BodyText>
                 </div>
-                <Link className="text-sm font-semibold text-brand-700" href={`/nyheter/${post.slug}`}>
-                  Les mer →
+                <Link className={buttonVariants("ghost")} href={`/nyheter/${post.slug}`}>
+                  Les mer
                 </Link>
               </Card>
             );

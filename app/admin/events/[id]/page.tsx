@@ -30,7 +30,7 @@ export default async function EventDetailPage({
   const { data: event } = await supabase
     .from("events")
     .select(
-      "id, slug, title, description_md, status, start_time, end_time, location, published_at"
+      "id, slug, title, description_md, cover_image_path, status, start_time, end_time, location, published_at"
     )
     .eq("id", params.id)
     .single();
@@ -134,6 +134,15 @@ export default async function EventDetailPage({
             <input
               name="location"
               defaultValue={event.location ?? ""}
+              className="w-full rounded-xl border border-slate-800 bg-slate-950 px-4 py-2"
+            />
+          </label>
+          <label className="space-y-2 text-sm text-slate-200">
+            Cover-bilde URL
+            <input
+              name="cover_image_path"
+              defaultValue={event.cover_image_path ?? ""}
+              placeholder="https://... eller /bilder/..."
               className="w-full rounded-xl border border-slate-800 bg-slate-950 px-4 py-2"
             />
           </label>

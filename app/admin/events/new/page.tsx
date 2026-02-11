@@ -93,6 +93,14 @@ export default function NewEventPage() {
             />
           </label>
           <label className="space-y-2 text-sm text-slate-200">
+            Cover-bilde URL
+            <input
+              name="cover_image_path"
+              placeholder="https://... eller /bilder/..."
+              className="w-full rounded-xl border border-slate-800 bg-slate-950 px-4 py-2"
+            />
+          </label>
+          <label className="space-y-2 text-sm text-slate-200">
             Status
             <select
               name="status"
