@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { cookies } from "next/headers";
 import Link from "next/link";
 
+import { buttonVariants } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { BodyText, Heading } from "@/components/ui/typography";
 import { getUpcomingEvents, normalizeLocale, resolveLocalizedField } from "@/lib/data";
@@ -85,8 +86,8 @@ export default async function CalendarPage({ searchParams }: CalendarPageProps) 
                   ) : null}
                 </div>
                 <BodyText>{description}</BodyText>
-                <Link className="text-sm font-semibold text-brand-700" href={`/kalender/${event.slug}`}>
-                  Les mer →
+                <Link className={buttonVariants("ghost")} href={`/kalender/${event.slug}`}>
+                  Les mer
                 </Link>
               </Card>
             );

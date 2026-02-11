@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
+import { buttonVariants } from "@/components/ui/button";
 import { BodyText, Heading } from "@/components/ui/typography";
 import { getSermonBySlug } from "@/lib/data";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
@@ -86,7 +87,7 @@ export default async function PodcastDetailPage({ params }: PodcastDetailPagePro
             {sermon.external_spotify_url ? (
               <a
                 href={sermon.external_spotify_url}
-                className="rounded-full border border-[#e6ddcf] px-4 py-2 text-stone-700 transition hover:border-[#d6c8b5]"
+                className={buttonVariants("primary")}
                 target="_blank"
                 rel="noreferrer"
               >
@@ -96,7 +97,9 @@ export default async function PodcastDetailPage({ params }: PodcastDetailPagePro
             {sermon.external_apple_url ? (
               <a
                 href={sermon.external_apple_url}
-                className="rounded-full border border-[#e6ddcf] px-4 py-2 text-stone-700 transition hover:border-[#d6c8b5]"
+                className={buttonVariants(
+                  sermon.external_spotify_url ? "secondary" : "primary"
+                )}
                 target="_blank"
                 rel="noreferrer"
               >

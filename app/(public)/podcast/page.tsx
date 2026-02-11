@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
+import { buttonVariants } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { BodyText, Heading } from "@/components/ui/typography";
 import { getLatestSermons } from "@/lib/data";
@@ -55,10 +56,10 @@ export default async function PodcastPage() {
                   </div>
                 </div>
                 <Link
-                  className="text-sm font-semibold text-brand-700"
+                  className={buttonVariants("ghost")}
                   href={`/podcast/${sermon.slug}`}
                 >
-                  Åpne episode →
+                  Åpne episode
                 </Link>
               </Card>
             );
