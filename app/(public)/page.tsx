@@ -3,6 +3,7 @@ import type { Route } from "next";
 import { cookies } from "next/headers";
 import Link from "next/link";
 
+import { buttonVariants } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { BodyText, Heading, Subheading } from "@/components/ui/typography";
 import {
@@ -21,14 +22,6 @@ const quickLinks: Array<{ title: string; description: string; href: Route }> = [
 ];
 
 const fallbackLocale = "no";
-
-const buttonBaseClasses =
-  "inline-flex items-center justify-center rounded-full px-5 py-2 text-sm font-semibold transition";
-const buttonVariants = {
-  primary: "bg-brand-600 text-white hover:bg-brand-700",
-  secondary: "bg-[#fffaf3] text-stone-900 border border-[#e6ddcf] hover:bg-[#f2e9dc]",
-  ghost: "text-stone-700 hover:bg-[#efe5d8]",
-};
 
 const formatEventDate = (date: string) =>
   new Intl.DateTimeFormat("nb-NO", {
@@ -74,13 +67,13 @@ export default async function HomePage({ searchParams }: HomePageProps) {
             </BodyText>
             <div className="flex flex-wrap gap-3">
               <Link
-                className={`${buttonBaseClasses} ${buttonVariants.primary}`}
+                className={buttonVariants("primary")}
                 href="/kalender"
               >
                 Se kalender
               </Link>
               <Link
-                className={`${buttonBaseClasses} ${buttonVariants.secondary}`}
+                className={buttonVariants("secondary")}
                 href="/kontakt"
               >
                 Bli med i fellesskapet
@@ -96,7 +89,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
               <Subheading>{nextEventTitle}</Subheading>
               <BodyText>{nextEventDate ? `${nextEventDate} · ${nextEventLocation}` : "Ingen publiserte arrangementer enda."}</BodyText>
               <Link
-                className={`${buttonBaseClasses} ${buttonVariants.ghost}`}
+                className={buttonVariants("ghost")}
                 href="/kalender"
               >
                 Se kalender
@@ -118,8 +111,8 @@ export default async function HomePage({ searchParams }: HomePageProps) {
               ? `${nextEventDate} · ${nextEventLocation}`
               : "Neste arrangement legges ut snart. Sjekk kalenderen for oppdateringer."}
           </BodyText>
-          <Link className="text-sm font-semibold text-brand-700" href="/kalender">
-            Se hele kalenderen →
+          <Link className={buttonVariants("primary")} href="/kalender">
+            Se hele kalenderen
           </Link>
         </Card>
       </section>
@@ -135,8 +128,8 @@ export default async function HomePage({ searchParams }: HomePageProps) {
               <h3 className="text-lg font-semibold text-stone-900">{link.title}</h3>
               <BodyText>{link.description}</BodyText>
 
-              <Link className="text-sm font-semibold text-brand-700" href={link.href}>
-                Gå til {link.title.toLowerCase()} →
+              <Link className={buttonVariants("ghost")} href={link.href}>
+                Gå til {link.title.toLowerCase()}
               </Link>
 
             </Card>
@@ -148,7 +141,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
         <div className="container-layout space-y-8 py-14">
           <div className="flex items-center justify-between">
             <Subheading>Siste nyheter</Subheading>
-            <Link className="text-sm font-semibold text-brand-700" href="/nyheter">
+            <Link className={buttonVariants("secondary")} href="/nyheter">
               Se alle nyheter
             </Link>
 
@@ -170,7 +163,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
                     <h3 className="text-lg font-semibold text-stone-900">{title}</h3>
                     <BodyText>{excerpt}</BodyText>
                     <Link
-                      className={`${buttonBaseClasses} ${buttonVariants.ghost}`}
+                      className={buttonVariants("ghost")}
                       href={`/nyheter/${post.slug}`}
                     >
                       Les mer
