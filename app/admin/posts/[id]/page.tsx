@@ -4,6 +4,7 @@ import { notFound } from 'next/navigation';
 import { deletePost, updatePost } from "@/app/admin/posts/actions";
 import { LanguageToggleFields } from "@/components/admin/language-toggle-fields";
 import { MarkdownEditor } from "@/components/admin/markdown-editor";
+import { MediaPicker } from "@/components/admin/media-picker";
 import { SlugField } from "@/components/admin/slug-field";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
