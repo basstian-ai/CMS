@@ -25,12 +25,16 @@ const eventSelectLegacy =
 
 type LegacyPublicEvent = Omit<PublicEvent, "cover_image_path">;
 
-function isMissingCoverImageColumnError(error: { code?: string; message?: string } | null) {
+function isMissingCoverImageColumnError(
+  error: { code?: string; message?: string; details?: string; hint?: string } | null,
+) {
+  const isMissingColumnCode = error?.code === "42703";
+  const isMissingSchemaCacheCode = error?.code === "PGRST204";
+  const errorText = [error?.message, error?.details, error?.hint].join(" ").toLowerCase();
+
   return (
-    error?.code === "42703" &&
-    (error.message?.includes("events.cover_image_path") ||
-      error.message?.includes("cover_image_path") ||
-      false)
+    (isMissingColumnCode || isMissingSchemaCacheCode) &&
+    (errorText.includes("events.cover_image_path") || errorText.includes("cover_image_path"))
   );
 }
 
