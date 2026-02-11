@@ -17,10 +17,15 @@ function formatDate(value: string | null) {
 export default async function EventsPage({
   searchParams,
 }: {
-  searchParams?: { query?: string };
+  searchParams?: { query?: string; status?: string };
 }) {
   const supabase = createSupabaseServerClient();
   const query = searchParams?.query?.trim();
+  const status = searchParams?.status;
+  const statusFilter =
+    status === "draft" || status === "published" || status === "archived"
+      ? status
+      : null;
   const escapedQuery = query ? escapePostgrestText(query) : null;
   let request = supabase
     .from("events")
@@ -31,7 +36,23 @@ export default async function EventsPage({
       `slug.ilike."%${escapedQuery}%",title->>no.ilike."%${escapedQuery}%"`
     );
   }
+  if (statusFilter) {
+    request = request.eq("status", statusFilter);
+  }
   const { data: events } = await request;
+
+  const statusBadgeClassName = (value: string | null) => {
+    switch (value) {
+      case "published":
+        return "bg-emerald-500/15 text-emerald-300 ring-1 ring-inset ring-emerald-500/30";
+      case "draft":
+        return "bg-amber-500/15 text-amber-300 ring-1 ring-inset ring-amber-500/30";
+      case "archived":
+        return "bg-slate-500/20 text-slate-300 ring-1 ring-inset ring-slate-400/30";
+      default:
+        return "bg-slate-500/20 text-slate-300 ring-1 ring-inset ring-slate-400/30";
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -59,6 +80,19 @@ export default async function EventsPage({
             placeholder="Søk i tittel eller slug"
             className="mt-2 w-full rounded-xl border border-slate-800 bg-slate-950 px-4 py-2 text-slate-100"
           />
+        </label>
+        <label className="text-sm text-slate-200">
+          Status
+          <select
+            name="status"
+            defaultValue={statusFilter ?? ""}
+            className="mt-2 w-full rounded-xl border border-slate-800 bg-slate-950 px-4 py-2 text-slate-100"
+          >
+            <option value="">Alle</option>
+            <option value="draft">Draft</option>
+            <option value="published">Published</option>
+            <option value="archived">Archived</option>
+          </select>
         </label>
         <button
           type="submit"
@@ -91,7 +125,15 @@ export default async function EventsPage({
                   </Link>
                 </td>
                 <td className="px-4 py-3 text-slate-400">{event.slug}</td>
-                <td className="px-4 py-3 text-slate-400">{event.status}</td>
+                <td className="px-4 py-3 text-slate-400">
+                  <span
+                    className={`inline-flex rounded-full px-2.5 py-1 text-xs font-medium capitalize ${statusBadgeClassName(
+                      event.status
+                    )}`}
+                  >
+                    {event.status ?? "ukjent"}
+                  </span>
+                </td>
                 <td className="px-4 py-3 text-slate-400">
                   {formatDate(event.start_time)}
                 </td>
