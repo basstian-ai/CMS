@@ -1,11 +1,13 @@
 import type { Metadata } from "next";
 import { cookies } from "next/headers";
+import Image from "next/image";
 import { notFound } from "next/navigation";
 
 import { MarkdownRenderer } from "@/components/markdown-renderer";
 import { BodyText, Heading } from "@/components/ui/typography";
 import { getPostBySlug, normalizeLocale, resolveLocalizedField } from "@/lib/data";
 import { toMetadataDescription } from "@/lib/utils/metadata";
+import { resolvePublicImageUrl } from "@/lib/utils/media";
 
 export const revalidate = 1800;
 
@@ -73,6 +75,7 @@ export default async function NewsDetailPage({
     resolveLocalizedField(post.content_md, locale, fallbackLocale) ??
     "Innholdet er ikke tilgjengelig ennå.";
   const publishedAt = post.published_at ? formatPublishedDate(post.published_at) : null;
+  const coverImageUrl = resolvePublicImageUrl(post.cover_image_path);
 
   return (
     <article className="container-layout space-y-8 py-16">
@@ -83,10 +86,12 @@ export default async function NewsDetailPage({
         </BodyText>
       </header>
 
-      {post.cover_image_path ? (
-        <img
-          src={post.cover_image_path}
+      {coverImageUrl ? (
+        <Image
+          src={coverImageUrl}
           alt={title}
+          width={1440}
+          height={640}
           className="h-80 w-full rounded-2xl object-cover"
         />
       ) : null}
