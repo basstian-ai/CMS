@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { deleteEvent, updateEvent } from "@/app/admin/events/actions";
+import { LanguageToggleFields } from "@/components/admin/language-toggle-fields";
 import { MarkdownEditor } from "@/components/admin/markdown-editor";
 import { SlugField } from "@/components/admin/slug-field";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
@@ -55,48 +56,53 @@ export default async function EventDetailPage({
       </div>
 
       <form action={updateEvent.bind(null, event.id)} className="space-y-6">
-        <div className="grid gap-4 md:grid-cols-2">
-          <label className="space-y-2 text-sm text-slate-200">
-            Tittel (NO)
-            <input
-              name="title"
-              required
-              defaultValue={event.title?.no ?? ""}
-              className="w-full rounded-xl border border-slate-800 bg-slate-950 px-4 py-2"
-            />
-          </label>
-          <label className="space-y-2 text-sm text-slate-200">
-            Tittel (EN)
-            <input
-              name="title_en"
-              defaultValue={event.title?.en ?? ""}
-              className="w-full rounded-xl border border-slate-800 bg-slate-950 px-4 py-2"
-            />
-          </label>
-        </div>
+        <LanguageToggleFields
+          noContent={
+            <div className="space-y-4">
+              <label className="space-y-2 text-sm text-slate-200">
+                Tittel (NO)
+                <input
+                  name="title"
+                  required
+                  defaultValue={event.title?.no ?? ""}
+                  className="w-full rounded-xl border border-slate-800 bg-slate-950 px-4 py-2"
+                />
+              </label>
+              <MarkdownEditor
+                label="Beskrivelse (NO)"
+                name="description"
+                recordId={`event-${event.id}`}
+                rows={8}
+                defaultValue={event.description_md?.no ?? ""}
+              />
+            </div>
+          }
+          enContent={
+            <div className="space-y-4">
+              <label className="space-y-2 text-sm text-slate-200">
+                Tittel (EN)
+                <input
+                  name="title_en"
+                  defaultValue={event.title?.en ?? ""}
+                  className="w-full rounded-xl border border-slate-800 bg-slate-950 px-4 py-2"
+                />
+              </label>
+              <MarkdownEditor
+                label="Beskrivelse (EN)"
+                name="description_en"
+                recordId={`event-${event.id}`}
+                rows={8}
+                defaultValue={event.description_md?.en ?? ""}
+              />
+            </div>
+          }
+        />
         <div className="grid gap-4 md:grid-cols-2">
           <SlugField
             initialSlug={event.slug}
             slugName="slug"
             titleInputName="title"
             required
-          />
-        </div>
-
-        <div className="grid gap-6 lg:grid-cols-2">
-          <MarkdownEditor
-            label="Beskrivelse (NO)"
-            name="description"
-            recordId={`event-${event.id}`}
-            rows={8}
-            defaultValue={event.description_md?.no ?? ""}
-          />
-          <MarkdownEditor
-            label="Beskrivelse (EN)"
-            name="description_en"
-            recordId={`event-${event.id}`}
-            rows={8}
-            defaultValue={event.description_md?.en ?? ""}
           />
         </div>
 
