@@ -49,8 +49,20 @@ export function LanguageToggleFields({
         </div>
       </div>
 
-      <div className={activeLanguage === "no" ? "block" : "hidden"}>{noContent}</div>
-      <div className={activeLanguage === "en" ? "block" : "hidden"}>{enContent}</div>
+      <fieldset
+        disabled={activeLanguage !== "no"}
+        aria-hidden={activeLanguage !== "no"}
+        className={activeLanguage === "no" ? "block" : "hidden"}
+      >
+        {noContent}
+      </fieldset>
+      <fieldset
+        disabled={activeLanguage !== "en"}
+        aria-hidden={activeLanguage !== "en"}
+        className={activeLanguage === "en" ? "block" : "hidden"}
+      >
+        {enContent}
+      </fieldset>
     </section>
   );
 }
