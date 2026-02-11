@@ -6,6 +6,7 @@ export type PublicEvent = {
   slug: string;
   title: LocalizedField<string>;
   description_md: LocalizedField<string>;
+  cover_image_path: string | null;
   start_time: string;
   end_time: string | null;
   location: string | null;
@@ -24,7 +25,7 @@ export async function getUpcomingEvents(limit: number) {
   const { data, error } = await supabase
     .from("events")
     .select(
-      "id, slug, title, description_md, start_time, end_time, location, published_at",
+      "id, slug, title, description_md, cover_image_path, start_time, end_time, location, published_at",
     )
     .eq("status", publishedFilter.status)
     .or(publishedAtFilter)
@@ -45,7 +46,7 @@ export async function getEventBySlug(slug: string) {
   const { data, error } = await supabase
     .from("events")
     .select(
-      "id, slug, title, description_md, start_time, end_time, location, published_at",
+      "id, slug, title, description_md, cover_image_path, start_time, end_time, location, published_at",
     )
     .eq("slug", slug)
     .eq("status", publishedFilter.status)
