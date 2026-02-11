@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { cookies } from "next/headers";
+import Image from "next/image";
 import { notFound } from "next/navigation";
 
 import { MarkdownRenderer } from "@/components/markdown-renderer";
@@ -84,10 +85,13 @@ export default async function NewsDetailPage({
       </header>
 
       {post.cover_image_path ? (
-        <img
+        <Image
           src={post.cover_image_path}
           alt={title}
+          width={1440}
+          height={640}
           className="h-80 w-full rounded-2xl object-cover"
+          unoptimized
         />
       ) : null}
 
