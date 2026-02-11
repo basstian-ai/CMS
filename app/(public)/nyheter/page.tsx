@@ -7,6 +7,7 @@ import { buttonVariants } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { BodyText, Heading } from "@/components/ui/typography";
 import { getPublishedPosts, normalizeLocale, resolveLocalizedField } from "@/lib/data";
+import { resolvePublicImageUrl } from "@/lib/utils/media";
 
 export const revalidate = 600;
 
@@ -48,16 +49,17 @@ export default async function NewsPage({ searchParams }: NewsPageProps) {
               resolveLocalizedField(post.excerpt, locale, fallbackLocale) ??
               "Les mer om denne oppdateringen.";
 
+            const coverImageUrl = resolvePublicImageUrl(post.cover_image_path);
+
             return (
               <Card key={post.id} className="flex h-full flex-col gap-4">
-                {post.cover_image_path ? (
+                {coverImageUrl ? (
                   <Image
-                    src={post.cover_image_path}
+                    src={coverImageUrl}
                     alt={title}
                     width={800}
                     height={384}
                     className="h-48 w-full rounded-xl object-cover"
-                    unoptimized
                   />
                 ) : (
                   <div className="flex h-48 items-center justify-center rounded-xl bg-[#efe5d8] text-sm text-stone-600">

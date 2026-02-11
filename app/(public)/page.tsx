@@ -13,6 +13,7 @@ import {
   normalizeLocale,
   resolveLocalizedField,
 } from "@/lib/data";
+import { resolvePublicImageUrl } from "@/lib/utils/media";
 
 export const revalidate = 600;
 
@@ -57,7 +58,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
     "Vi oppdaterer programmet snart. Følg med for detaljer om neste arrangement.";
   const nextEventDate = nextEvent?.start_time ? formatEventDate(nextEvent.start_time) : null;
   const nextEventLocation = nextEvent?.location ?? "Sted annonseres snart";
-  const nextEventImage = nextEvent?.cover_image_path ?? defaultEventImage;
+  const nextEventImage = resolvePublicImageUrl(nextEvent?.cover_image_path) ?? defaultEventImage;
 
   return (
     <div>
@@ -171,7 +172,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
                   <Card key={post.id} className="space-y-3">
                     <div className="relative h-40 overflow-hidden rounded-xl">
                       <Image
-                        src={post.cover_image_path ?? defaultPostImage}
+                        src={resolvePublicImageUrl(post.cover_image_path) ?? defaultPostImage}
                         alt={title}
                         fill
                         sizes="(max-width: 768px) 100vw, 33vw"
