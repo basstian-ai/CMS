@@ -1,18 +1,19 @@
-import Link from "next/link";
-import { notFound } from "next/navigation";
+import Link from 'next/link';
+import { notFound } from 'next/navigation';
 
-import { deletePost, updatePost } from "@/app/admin/posts/actions";
-import { MarkdownEditor } from "@/components/admin/markdown-editor";
-import { SlugField } from "@/components/admin/slug-field";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { deletePost, updatePost } from '@/app/admin/posts/actions';
+import { MediaPicker } from '@/components/admin/media-picker';
+import { MarkdownEditor } from '@/components/admin/markdown-editor';
+import { SlugField } from '@/components/admin/slug-field';
+import { createSupabaseServerClient } from '@/lib/supabase/server';
 
 function formatDateTime(value: string | null) {
   if (!value) {
-    return "";
+    return '';
   }
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) {
-    return "";
+    return '';
   }
   return date.toISOString().slice(0, 16);
 }
@@ -24,10 +25,33 @@ export default async function PostDetailPage({
 }) {
   const supabase = createSupabaseServerClient();
   const { data: post } = await supabase
-    .from("posts")
-    .select("id, slug, title, excerpt, content_md, status, published_at, cover_image_path")
-    .eq("id", params.id)
+    .from('posts')
+    .select(
+      'id, slug, title, excerpt, content_md, status, published_at, cover_image_path',
+    )
+    .eq('id', params.id)
     .single();
+
+  const { data: media } = await supabase
+    .from('media')
+    .select('id, bucket, path, alt, caption')
+    .order('updated_at', { ascending: false })
+    .limit(120);
+
+  const mediaWithUrls =
+    media?.map((item) => {
+      const { data } = supabase.storage
+        .from(item.bucket)
+        .getPublicUrl(item.path);
+      return {
+        id: item.id,
+        bucket: item.bucket,
+        path: item.path,
+        alt: item.alt,
+        caption: item.caption,
+        publicUrl: data.publicUrl,
+      };
+    }) ?? [];
 
   if (!post) {
     notFound();
@@ -41,10 +65,13 @@ export default async function PostDetailPage({
             Innlegg
           </p>
           <h2 className="text-2xl font-semibold text-slate-100">
-            {post.title?.no ?? "Uten tittel"}
+            {post.title?.no ?? 'Uten tittel'}
           </h2>
         </div>
-        <Link href="/admin/posts" className="text-sm text-slate-400 hover:text-white">
+        <Link
+          href="/admin/posts"
+          className="text-sm text-slate-400 hover:text-white"
+        >
           ← Tilbake
         </Link>
       </div>
@@ -56,7 +83,7 @@ export default async function PostDetailPage({
             <input
               name="title"
               required
-              defaultValue={post.title?.no ?? ""}
+              defaultValue={post.title?.no ?? ''}
               className="w-full rounded-xl border border-slate-800 bg-slate-950 px-4 py-2"
             />
           </label>
@@ -64,7 +91,7 @@ export default async function PostDetailPage({
             Tittel (EN)
             <input
               name="title_en"
-              defaultValue={post.title?.en ?? ""}
+              defaultValue={post.title?.en ?? ''}
               className="w-full rounded-xl border border-slate-800 bg-slate-950 px-4 py-2"
             />
           </label>
@@ -84,7 +111,7 @@ export default async function PostDetailPage({
             <textarea
               name="excerpt"
               rows={3}
-              defaultValue={post.excerpt?.no ?? ""}
+              defaultValue={post.excerpt?.no ?? ''}
               className="w-full rounded-xl border border-slate-800 bg-slate-950 px-4 py-2"
             />
           </label>
@@ -93,7 +120,7 @@ export default async function PostDetailPage({
             <textarea
               name="excerpt_en"
               rows={3}
-              defaultValue={post.excerpt?.en ?? ""}
+              defaultValue={post.excerpt?.en ?? ''}
               className="w-full rounded-xl border border-slate-800 bg-slate-950 px-4 py-2"
             />
           </label>
@@ -105,14 +132,14 @@ export default async function PostDetailPage({
             name="content"
             recordId={`post-${post.id}`}
             rows={12}
-            defaultValue={post.content_md?.no ?? ""}
+            defaultValue={post.content_md?.no ?? ''}
           />
           <MarkdownEditor
             label="Innhold (EN)"
             name="content_en"
             recordId={`post-${post.id}`}
             rows={12}
-            defaultValue={post.content_md?.en ?? ""}
+            defaultValue={post.content_md?.en ?? ''}
           />
         </div>
 
@@ -138,14 +165,15 @@ export default async function PostDetailPage({
               className="w-full rounded-xl border border-slate-800 bg-slate-950 px-4 py-2"
             />
           </label>
-          <label className="space-y-2 text-sm text-slate-200">
-            Cover image path
-            <input
-              name="cover_image_path"
-              defaultValue={post.cover_image_path ?? ""}
-              className="w-full rounded-xl border border-slate-800 bg-slate-950 px-4 py-2"
+          <div className="space-y-2 text-sm text-slate-200">
+            Cover image
+            <MediaPicker
+              items={mediaWithUrls}
+              inputName="cover_image_path"
+              initialValue={post.cover_image_path}
+              label="Select image"
             />
-          </label>
+          </div>
         </div>
 
         <div className="flex flex-wrap items-center gap-3">
