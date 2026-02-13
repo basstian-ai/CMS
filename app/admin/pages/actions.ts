@@ -62,11 +62,41 @@ export async function updatePage(pageId: string, formData: FormData) {
   const supabase = createSupabaseServerClient();
   const { data: userData } = await supabase.auth.getUser();
 
-  const title = formData.get("title")?.toString().trim() ?? "";
-  const titleEn = formData.get("title_en")?.toString().trim() ?? "";
+  const { data: existingPage, error: existingPageError } = await supabase
+    .from("pages")
+    .select("title, content_md")
+    .eq("id", pageId)
+    .maybeSingle();
+
+  if (existingPageError) {
+    throw new Error(existingPageError.message);
+  }
+  if (!existingPage) {
+    throw new Error("Page not found.");
+  }
+
+  const titleField = formData.get("title");
+  const titleEnField = formData.get("title_en");
+  const contentField = formData.get("content");
+  const contentEnField = formData.get("content_en");
+
+  const title =
+    titleField === null
+      ? existingPage.title?.no ?? ""
+      : titleField.toString().trim();
+  const titleEn =
+    titleEnField === null
+      ? existingPage.title?.en ?? null
+      : titleEnField.toString().trim() || null;
   const slug = formData.get("slug")?.toString().trim() ?? "";
-  const content = formData.get("content")?.toString().trim() ?? "";
-  const contentEn = formData.get("content_en")?.toString().trim() ?? "";
+  const content =
+    contentField === null
+      ? existingPage.content_md?.no ?? ""
+      : contentField.toString().trim();
+  const contentEn =
+    contentEnField === null
+      ? existingPage.content_md?.en ?? null
+      : contentEnField.toString().trim() || null;
   const status = normalizeStatus(formData.get("status")?.toString() ?? null);
   const publishedAt = normalizeDate(formData.get("published_at")?.toString() ?? null);
 

@@ -70,11 +70,41 @@ export async function updateEvent(eventId: string, formData: FormData) {
   const supabase = createSupabaseServerClient();
   const { data: userData } = await supabase.auth.getUser();
 
-  const title = formData.get("title")?.toString().trim() ?? "";
-  const titleEn = formData.get("title_en")?.toString().trim() ?? "";
+  const { data: existingEvent, error: existingEventError } = await supabase
+    .from("events")
+    .select("title, description_md")
+    .eq("id", eventId)
+    .maybeSingle();
+
+  if (existingEventError) {
+    throw new Error(existingEventError.message);
+  }
+  if (!existingEvent) {
+    throw new Error("Event not found.");
+  }
+
+  const titleField = formData.get("title");
+  const titleEnField = formData.get("title_en");
+  const descriptionField = formData.get("description");
+  const descriptionEnField = formData.get("description_en");
+
+  const title =
+    titleField === null
+      ? existingEvent.title?.no ?? ""
+      : titleField.toString().trim();
+  const titleEn =
+    titleEnField === null
+      ? existingEvent.title?.en ?? null
+      : titleEnField.toString().trim() || null;
   const slug = formData.get("slug")?.toString().trim() ?? "";
-  const description = formData.get("description")?.toString().trim() ?? "";
-  const descriptionEn = formData.get("description_en")?.toString().trim() ?? "";
+  const description =
+    descriptionField === null
+      ? existingEvent.description_md?.no ?? ""
+      : descriptionField.toString().trim();
+  const descriptionEn =
+    descriptionEnField === null
+      ? existingEvent.description_md?.en ?? null
+      : descriptionEnField.toString().trim() || null;
   const startTime = normalizeDate(formData.get("start_time")?.toString() ?? null);
   const endTime = normalizeDate(formData.get("end_time")?.toString() ?? null);
   const location = formData.get("location")?.toString().trim() ?? "";
