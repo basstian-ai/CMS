@@ -74,35 +74,89 @@ async function syncGoogleCalendar() {
   });
 
   const now = new Date();
+  // Expand recurring events from 1 month ago to 6 months into the future
+  const rangeStart = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+  const rangeEnd = new Date(now.getTime() + 180 * 24 * 60 * 60 * 1000);
+
   console.log(`Fetching calendar from ${CALENDAR_URL}`);
 
   const calendarData = await ical.async.fromURL(CALENDAR_URL);
-  const events = Object.values(calendarData).filter(
+  const vevents = Object.values(calendarData).filter(
     (entry) => entry?.type === "VEVENT",
-  );
+  ) as ical.VEvent[];
 
-  const records = events.map((event) => {
-    const title = event.summary?.trim() || "Arrangement";
-    const description = event.description?.trim() || "";
-    const startTime = toIsoDate(event.start);
-    const endTime = toIsoDate(event.end);
-    const slug = buildSlug(title, event.start, event.uid, event.recurrenceid);
-    const status = isCancelled(event) ? "cancelled" : "published";
+  const recordsMap = new Map();
 
-    return {
-      slug,
-      title: { no: title, en: title },
-      description_md: {
-        no: description,
-        en: description,
-      },
-      start_time: startTime,
-      end_time: endTime,
-      location: event.location?.trim() || null,
-      status,
-      published_at: status === "published" ? now.toISOString() : null,
-    };
-  });
+  // 1. Process all explicit events (non-recurring and overrides)
+  for (const event of vevents) {
+    if (event.recurrenceid || !event.rrule) {
+      const title = event.summary?.trim() || "Arrangement";
+      const description = event.description?.trim() || "";
+      const startTime = toIsoDate(event.start);
+      const endTime = toIsoDate(event.end);
+      const slug = buildSlug(title, event.start, event.uid, event.recurrenceid);
+      const status = isCancelled(event) ? "cancelled" : "published";
+
+      recordsMap.set(slug, {
+        slug,
+        title: { no: title, en: title },
+        description_md: { no: description, en: description },
+        start_time: startTime,
+        end_time: endTime,
+        location: event.location?.trim() || null,
+        status,
+        published_at: status === "published" ? now.toISOString() : null,
+      });
+    }
+  }
+
+  // 2. Expand recurring master events
+  for (const event of vevents) {
+    if (event.rrule) {
+      const occurrences = event.rrule.between(rangeStart, rangeEnd);
+      const duration =
+        event.start && event.end
+          ? event.end.getTime() - event.start.getTime()
+          : 0;
+
+      for (const occurrence of occurrences) {
+        const title = event.summary?.trim() || "Arrangement";
+        const slug = buildSlug(title, occurrence, event.uid);
+
+        // Skip if this occurrence is already handled by an explicit override
+        if (recordsMap.has(slug)) continue;
+
+        // Skip if this occurrence is an exclusion date (EXDATE)
+        if (event.exdate) {
+          const occStr = occurrence.toISOString().split("T")[0];
+          const isExcluded = Object.keys(event.exdate).some((ex) =>
+            ex.startsWith(occStr),
+          );
+          if (isExcluded) continue;
+        }
+
+        const startTime = toIsoDate(occurrence);
+        const endTime =
+          duration > 0
+            ? toIsoDate(new Date(occurrence.getTime() + duration))
+            : startTime;
+        const description = event.description?.trim() || "";
+
+        recordsMap.set(slug, {
+          slug,
+          title: { no: title, en: title },
+          description_md: { no: description, en: description },
+          start_time: startTime,
+          end_time: endTime,
+          location: event.location?.trim() || null,
+          status: "published",
+          published_at: now.toISOString(),
+        });
+      }
+    }
+  }
+
+  const records = Array.from(recordsMap.values());
 
   if (!records.length) {
     return { synced: 0, cancelled: 0 };

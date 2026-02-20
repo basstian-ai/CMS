@@ -49,12 +49,14 @@ export async function getUpcomingEvents(limit: number) {
   const supabase = createSupabaseServerClient();
   const now = publishedFilter.now();
   const publishedAtFilter = `published_at.is.null,published_at.lte.${now}`;
+  const upcomingFilter = `start_time.gte.${now},end_time.gte.${now}`;
+
   const primaryQuery = supabase
     .from("events")
     .select(eventSelectWithCoverImage)
     .eq("status", publishedFilter.status)
     .or(publishedAtFilter)
-    .gte("start_time", now)
+    .or(upcomingFilter)
     .order("start_time", { ascending: true })
     .limit(limit);
 
@@ -73,7 +75,7 @@ export async function getUpcomingEvents(limit: number) {
     .select(eventSelectLegacy)
     .eq("status", publishedFilter.status)
     .or(publishedAtFilter)
-    .gte("start_time", now)
+    .or(upcomingFilter)
     .order("start_time", { ascending: true })
     .limit(limit);
 
