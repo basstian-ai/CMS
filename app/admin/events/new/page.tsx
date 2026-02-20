@@ -104,7 +104,7 @@ export default function NewEventPage() {
             Status
             <select
               name="status"
-              defaultValue="draft"
+              defaultValue="published"
               className="w-full rounded-xl border border-slate-800 bg-slate-950 px-4 py-2"
             >
               <option value="draft">Kladd</option>

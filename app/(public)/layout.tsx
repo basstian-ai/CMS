@@ -5,6 +5,7 @@ import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
 import { LanguageToggle } from "@/components/ui/language-toggle";
+import { MobileMenu } from "@/components/ui/mobile-menu";
 
 export default function PublicLayout({ children }: PropsWithChildren) {
   return (
@@ -22,7 +23,7 @@ export default function PublicLayout({ children }: PropsWithChildren) {
               priority
             />
           </Link>
-          <nav className="hidden items-center gap-6 text-sm text-stone-600 md:flex">
+          <nav className="hidden items-center gap-6 text-sm text-stone-600 lg:flex">
 
             <Link href="/nyheter" className="transition hover:text-stone-900">
               Nyheter
@@ -45,7 +46,8 @@ export default function PublicLayout({ children }: PropsWithChildren) {
             >
               <LanguageToggle />
             </Suspense>
-            <Button variant="secondary" className="hidden md:inline-flex">
+            <MobileMenu />
+            <Button variant="secondary" className="hidden lg:inline-flex">
               Gi
             </Button>
           </div>

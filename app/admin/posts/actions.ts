@@ -106,13 +106,51 @@ export async function createPost(formData: FormData) {
 export async function updatePost(postId: string, formData: FormData) {
   const { adminClient, userId } = await requireEditorUser();
 
-  const title = formData.get("title")?.toString().trim() ?? "";
-  const titleEn = formData.get("title_en")?.toString().trim() ?? "";
+  const { data: existingPost, error: existingPostError } = await adminClient
+    .from("posts")
+    .select("title, excerpt, content_md")
+    .eq("id", postId)
+    .maybeSingle();
+
+  if (existingPostError) {
+    throw new Error(existingPostError.message);
+  }
+  if (!existingPost) {
+    throw new Error("Post not found.");
+  }
+
+  const titleField = formData.get("title");
+  const titleEnField = formData.get("title_en");
+  const excerptField = formData.get("excerpt");
+  const excerptEnField = formData.get("excerpt_en");
+  const contentField = formData.get("content");
+  const contentEnField = formData.get("content_en");
+
+  const title =
+    titleField === null
+      ? existingPost.title?.no ?? ""
+      : titleField.toString().trim();
+  const titleEn =
+    titleEnField === null
+      ? existingPost.title?.en ?? null
+      : titleEnField.toString().trim() || null;
   const slug = formData.get("slug")?.toString().trim() ?? "";
-  const excerpt = formData.get("excerpt")?.toString().trim() ?? "";
-  const excerptEn = formData.get("excerpt_en")?.toString().trim() ?? "";
-  const content = formData.get("content")?.toString().trim() ?? "";
-  const contentEn = formData.get("content_en")?.toString().trim() ?? "";
+  const excerpt =
+    excerptField === null
+      ? existingPost.excerpt?.no ?? ""
+      : excerptField.toString().trim();
+  const excerptEn =
+    excerptEnField === null
+      ? existingPost.excerpt?.en ?? null
+      : excerptEnField.toString().trim() || null;
+  const content =
+    contentField === null
+      ? existingPost.content_md?.no ?? ""
+      : contentField.toString().trim();
+  const contentEn =
+    contentEnField === null
+      ? existingPost.content_md?.en ?? null
+      : contentEnField.toString().trim() || null;
   const status = normalizeStatus(formData.get("status")?.toString() ?? null);
   const publishedAt = normalizePublishedAt(
     status,

@@ -22,11 +22,14 @@ npm run dev
 Kopier `.env.example` til `.env.local` og fyll inn følgende:
 
 ```bash
+NEXT_PUBLIC_SITE_URL=
 NEXT_PUBLIC_SUPABASE_URL=
 NEXT_PUBLIC_SUPABASE_ANON_KEY=
 SUPABASE_URL=
 SUPABASE_SERVICE_ROLE_KEY=
 SUPABASE_JWT_SECRET=
+GOOGLE_CALENDAR_ICS_URL=
+CRON_SECRET=
 ```
 
 ### Google Calendar → Supabase sync
@@ -48,9 +51,7 @@ Prosjektet har en API-route på `/api/google-calendar-sync` og en cron-konfig i 
 For å få dette til å kjøre i produksjon:
 1. Legg inn `SUPABASE_URL` og `SUPABASE_SERVICE_ROLE_KEY` i Vercel (Production + Preview).
 2. (Valgfritt) Sett `GOOGLE_CALENDAR_ICS_URL` hvis du vil overstyre kalender-URL.
-3. (Valgfritt) Sett `CRON_SECRET` og bruk den for manuelle kall til API-ruten (`/api/google-calendar-sync?secret=...` eller `x-cron-secret` header).
-
-Vercel Cron-requests inkluderer `x-vercel-cron: 1`, så de vil fungere selv om du har satt `CRON_SECRET`.
+3. Sett `CRON_SECRET` og bruk den for kall til API-ruten (`/api/google-calendar-sync?secret=...` eller `x-cron-secret` header).
 
 
 ### Supabase (milepæl 2)

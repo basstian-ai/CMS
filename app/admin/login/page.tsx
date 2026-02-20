@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { supabaseBrowserClient } from "@/lib/supabase/client";
@@ -10,12 +10,10 @@ export default function AdminLoginPage() {
   const [status, setStatus] = useState<"idle" | "loading" | "sent">("idle");
   const [error, setError] = useState<string | null>(null);
 
-  const redirectTo = useMemo(() => {
-    if (typeof window === "undefined") {
-      return undefined;
-    }
-    return `${window.location.origin}/admin`;
-  }, []);
+  const redirectTo =
+    typeof window !== "undefined"
+      ? `${window.location.origin}/auth/callback?next=/admin`
+      : undefined;
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();

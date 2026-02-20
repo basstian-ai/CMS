@@ -127,9 +127,17 @@ export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const token =
     request.headers.get("x-cron-secret") || searchParams.get("secret");
-  const isVercelCron = request.headers.get("x-vercel-cron") === "1";
+  const isVercelCron = request.headers.has("x-vercel-cron");
+  const isProduction = process.env.NODE_ENV === "production";
 
-  if (CRON_SECRET && token !== CRON_SECRET && !isVercelCron) {
+  if (isProduction && !CRON_SECRET) {
+    return NextResponse.json(
+      { error: "CRON_SECRET must be configured in production." },
+      { status: 500 },
+    );
+  }
+
+  if (CRON_SECRET && !isVercelCron && token !== CRON_SECRET) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
