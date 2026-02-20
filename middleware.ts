@@ -11,6 +11,11 @@ export async function middleware(request: NextRequest) {
     response.headers.set("X-Robots-Tag", "noindex");
   }
 
+  // Avoid crashing every request (including dev assets) when env is not configured yet.
+  if (!supabaseUrl || !supabaseAnonKey) {
+    return response;
+  }
+
   if (request.nextUrl.pathname.startsWith("/admin")) {
     if (request.nextUrl.pathname.startsWith("/admin/login")) {
       return response;
@@ -46,5 +51,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/((?!_next/static|_next/image|favicon.ico).*)"],
+  matcher: ["/admin/:path*"],
 };

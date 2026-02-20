@@ -10,9 +10,10 @@ export default function AdminLoginPage() {
   const [status, setStatus] = useState<"idle" | "loading" | "sent">("idle");
   const [error, setError] = useState<string | null>(null);
 
-  const redirectTo = process.env.NEXT_PUBLIC_SITE_URL
-    ? `${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback?next=/admin`
-    : "http://localhost:3000/auth/callback?next=/admin";
+  const redirectTo =
+    typeof window !== "undefined"
+      ? `${window.location.origin}/auth/callback?next=/admin`
+      : undefined;
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
