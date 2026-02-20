@@ -60,6 +60,19 @@ function isCancelled(event: { status?: string | null } | null) {
   return event?.status?.toLowerCase?.() === "cancelled";
 }
 
+function isBusyPlaceholder(event: { summary?: string | null } | null) {
+  const normalizedSummary = event?.summary?.trim().toLowerCase();
+  return normalizedSummary === "busy";
+}
+
+function isWithinRange(date: Date | undefined, rangeStart: Date, rangeEnd: Date) {
+  if (!date) {
+    return false;
+  }
+
+  return date >= rangeStart && date <= rangeEnd;
+}
+
 async function syncGoogleCalendar() {
   if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
     throw new Error(
@@ -90,6 +103,16 @@ async function syncGoogleCalendar() {
   // 1. Process all explicit events (non-recurring and overrides)
   for (const event of vevents) {
     if (event.recurrenceid || !event.rrule) {
+      const referenceDate = event.recurrenceid ?? event.start;
+
+      if (!isWithinRange(referenceDate, rangeStart, rangeEnd)) {
+        continue;
+      }
+
+      if (isBusyPlaceholder(event)) {
+        continue;
+      }
+
       const title = event.summary?.trim() || "Arrangement";
       const description = event.description?.trim() || "";
       const startTime = toIsoDate(event.start);
@@ -120,6 +143,10 @@ async function syncGoogleCalendar() {
           : 0;
 
       for (const occurrence of occurrences) {
+        if (isBusyPlaceholder(event)) {
+          continue;
+        }
+
         const title = event.summary?.trim() || "Arrangement";
         const slug = buildSlug(title, occurrence, event.uid);
 
