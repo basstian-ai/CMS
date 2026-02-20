@@ -127,6 +127,7 @@ export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const token =
     request.headers.get("x-cron-secret") || searchParams.get("secret");
+  const isVercelCron = request.headers.has("x-vercel-cron");
   const isProduction = process.env.NODE_ENV === "production";
 
   if (isProduction && !CRON_SECRET) {
@@ -136,7 +137,7 @@ export async function GET(request: Request) {
     );
   }
 
-  if (CRON_SECRET && token !== CRON_SECRET) {
+  if (CRON_SECRET && !isVercelCron && token !== CRON_SECRET) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
