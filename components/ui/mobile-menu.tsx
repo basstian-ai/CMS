@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import type { Route } from "next";
 import { useEffect, useState } from "react";
 
 const navItems = [
@@ -8,7 +9,7 @@ const navItems = [
   { href: "/kalender", label: "Kalender" },
   { href: "/podcast", label: "Podcast" },
   { href: "/kontakt", label: "Kontakt" },
-];
+] as const satisfies ReadonlyArray<{ href: Route; label: string }>;
 
 export function MobileMenu() {
   const [open, setOpen] = useState(false);
