@@ -20,6 +20,12 @@ export function EventTicker({ items }: EventTickerProps) {
   const [activeIndex, setActiveIndex] = useState(0);
 
   useEffect(() => {
+    setActiveIndex((current) =>
+      current >= items.length ? Math.max(items.length - 1, 0) : current,
+    );
+  }, [items.length]);
+
+  useEffect(() => {
     if (items.length < 2) {
       return;
     }
