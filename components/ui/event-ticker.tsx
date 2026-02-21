@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import type { Route } from 'next';
 import { useEffect, useState } from 'react';
 
 type EventTickerItem = {
@@ -8,7 +9,7 @@ type EventTickerItem = {
   title: string;
   dateLabel: string;
   location: string;
-  href: string;
+  href: Route;
 };
 
 type EventTickerProps = {

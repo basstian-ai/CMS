@@ -83,7 +83,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
       'Arrangement',
     dateLabel: formatEventDate(event.start_time),
     location: event.location ?? 'Sted annonseres snart',
-    href: `/kalender/${event.slug}`,
+    href: `/kalender/${event.slug}` as Route,
   }));
 
   return (
