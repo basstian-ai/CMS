@@ -206,8 +206,14 @@ async function syncGoogleCalendar() {
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
+  const authorizationHeader = request.headers.get("authorization");
+  const bearerToken = authorizationHeader?.startsWith("Bearer ")
+    ? authorizationHeader.slice(7).trim()
+    : null;
   const token =
-    request.headers.get("x-cron-secret") || searchParams.get("secret");
+    request.headers.get("x-cron-secret") ||
+    bearerToken ||
+    searchParams.get("secret");
   const isVercelCron = request.headers.has("x-vercel-cron");
   const isProduction = process.env.NODE_ENV === "production";
 
