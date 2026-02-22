@@ -51,7 +51,7 @@ Prosjektet har en API-route på `/api/google-calendar-sync` og en cron-konfig i 
 For å få dette til å kjøre i produksjon:
 1. Legg inn `SUPABASE_URL` og `SUPABASE_SERVICE_ROLE_KEY` i Vercel (Production + Preview).
 2. (Valgfritt) Sett `GOOGLE_CALENDAR_ICS_URL` hvis du vil overstyre kalender-URL.
-3. Sett `CRON_SECRET` og bruk den for kall til API-ruten (`/api/google-calendar-sync?secret=...` eller `x-cron-secret` header).
+3. Sett `CRON_SECRET`. Vercel Cron sender denne som `Authorization: Bearer <CRON_SECRET>`, og ruten støtter også `x-cron-secret` header eller `/api/google-calendar-sync?secret=...` for manuell testing.
 
 
 ### Supabase (milepæl 2)
