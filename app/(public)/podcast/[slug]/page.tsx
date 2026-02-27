@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 import { buttonVariants } from "@/components/ui/button";
 import { BodyText, Heading } from "@/components/ui/typography";
 import { getSermonBySlug } from "@/lib/data";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { createSupabasePublicClient } from "@/lib/supabase/server";
 
 export const revalidate = 1800;
 
@@ -48,7 +48,7 @@ export default async function PodcastDetailPage({ params }: PodcastDetailPagePro
     ? formatPublishedDate(sermon.published_at)
     : null;
 
-  const supabase = createSupabaseServerClient();
+  const supabase = createSupabasePublicClient();
   const audioUrl = sermon.audio_path
     ? supabase.storage.from("podcasts").getPublicUrl(sermon.audio_path).data.publicUrl
     : null;

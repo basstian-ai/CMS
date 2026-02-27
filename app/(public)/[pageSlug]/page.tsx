@@ -1,9 +1,15 @@
 import type { Metadata } from "next";
 import { cookies } from "next/headers";
 import { notFound } from "next/navigation";
-import { MarkdownRenderer } from "@/components/markdown-renderer";
+import { AutoTranslatedMarkdown } from "@/components/auto-translated-markdown";
+import { AutoTranslatedText } from "@/components/ui/auto-translated-text";
 import { Heading } from "@/components/ui/typography";
-import { getPageBySlug, normalizeLocale, resolveLocalizedField } from "@/lib/data";
+import {
+  getPageBySlug,
+  normalizeLocale,
+  resolveLocalizedField,
+  resolveLocalizedFieldWithMeta,
+} from "@/lib/data";
 import { toMetadataDescription } from "@/lib/utils/metadata";
 
 export const revalidate = 3600;
@@ -60,18 +66,37 @@ export default async function InfoPage({ params, searchParams }: InfoPageProps) 
     notFound();
   }
 
-  const title =
-    resolveLocalizedField(page.title, locale, fallbackLocale) ?? "Infoside";
-  const content =
-    resolveLocalizedField(page.content_md, locale, fallbackLocale) ??
-    "Innholdet er ikke tilgjengelig ennå.";
+  const titleResult = resolveLocalizedFieldWithMeta(
+    page.title,
+    locale,
+    fallbackLocale,
+  );
+  const contentResult = resolveLocalizedFieldWithMeta(
+    page.content_md,
+    locale,
+    fallbackLocale,
+  );
+  const title = titleResult.value ?? "Infoside";
+  const content = contentResult.value ?? "Innholdet er ikke tilgjengelig ennå.";
 
   return (
     <article className="container-layout space-y-8 py-16">
       <header>
-        <Heading>{title}</Heading>
+        <Heading>
+          <AutoTranslatedText
+            text={title}
+            sourceLocale={titleResult.sourceLocale ?? fallbackLocale}
+            targetLocale={locale}
+            enabled={titleResult.missingRequestedLocale}
+          />
+        </Heading>
       </header>
-      <MarkdownRenderer content={content} />
+      <AutoTranslatedMarkdown
+        content={content}
+        sourceLocale={contentResult.sourceLocale ?? fallbackLocale}
+        targetLocale={locale}
+        enabled={contentResult.missingRequestedLocale}
+      />
     </article>
   );
 }

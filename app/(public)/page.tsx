@@ -6,12 +6,13 @@ import Link from 'next/link';
 import { buttonVariants } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { EventTicker } from '@/components/ui/event-ticker';
+import { AutoTranslatedText } from '@/components/ui/auto-translated-text';
 import { BodyText, Heading, Subheading } from '@/components/ui/typography';
 import {
   getLatestPosts,
   getUpcomingEvents,
   normalizeLocale,
-  resolveLocalizedField,
+  resolveLocalizedFieldWithMeta,
 } from '@/lib/data';
 import { resolvePublicImageUrl } from '@/lib/utils/media';
 
@@ -63,42 +64,38 @@ export default async function HomePage({ searchParams }: HomePageProps) {
     getUpcomingEvents(3),
     getLatestPosts(3),
   ]);
-  const nextEvent = upcomingEvents[0] ?? null;
-  const nextEventTitle =
-    resolveLocalizedField(nextEvent?.title, locale, fallbackLocale) ??
-    'Neste samling';
-  const nextEventDescription =
-    resolveLocalizedField(nextEvent?.description_md, locale, fallbackLocale) ??
-    'Vi oppdaterer programmet snart. Følg med for detaljer om neste arrangement.';
-  const nextEventDate = nextEvent?.start_time
-    ? formatEventDate(nextEvent.start_time)
-    : null;
-  const nextEventLocation = nextEvent?.location ?? 'Sted annonseres snart';
-  const nextEventImage =
-    resolvePublicImageUrl(nextEvent?.cover_image_path) ?? defaultEventImage;
-  const tickerEvents = upcomingEvents.map((event) => ({
-    id: event.id,
-    title:
-      resolveLocalizedField(event.title, locale, fallbackLocale) ??
-      'Arrangement',
-    dateLabel: formatEventDate(event.start_time),
-    location: event.location ?? 'Sted annonseres snart',
-    href: `/kalender/${event.slug}` as Route,
-  }));
+  const tickerEvents = upcomingEvents.map((event) => {
+    const titleResult = resolveLocalizedFieldWithMeta(
+      event.title,
+      locale,
+      fallbackLocale,
+    );
+
+    return {
+      id: event.id,
+      title: titleResult.value ?? 'Arrangement',
+      titleSourceLocale: titleResult.sourceLocale ?? fallbackLocale,
+      shouldAutoTranslateTitle: titleResult.missingRequestedLocale,
+      dateLabel: formatEventDate(event.start_time),
+      location: event.location ?? 'Sted annonseres snart',
+      href: `/kalender/${event.slug}` as Route,
+    };
+  });
 
   return (
     <div>
-      <EventTicker items={tickerEvents} />
+      <EventTicker items={tickerEvents} locale={locale} />
       <section className="bg-[#fffaf3]">
         <div className="container-layout grid gap-10 py-16 lg:grid-cols-[1.2fr_0.8fr] lg:items-center">
           <div className="space-y-6">
             <div className="inline-flex items-center gap-2 rounded-full bg-brand-50 px-4 py-1 text-sm font-medium text-brand-700">
-              {nextEventDate
-                ? `Neste samling · ${nextEventDate}`
-                : 'Neste samling oppdateres'}
+              Velkommen til Bykirken
             </div>
             <Heading>Kirke midt i byen, mennesker i sentrum.</Heading>
-            <BodyText>{nextEventDescription}</BodyText>
+            <BodyText>
+              Vi er et fellesskap for tro, håp og hverdagsliv. Se hva som skjer
+              i kalenderen og finn din plass i fellesskapet.
+            </BodyText>
             <div className="flex flex-wrap gap-3">
               <Link className={buttonVariants('primary')} href="/kalender">
                 Se kalender
@@ -108,52 +105,18 @@ export default async function HomePage({ searchParams }: HomePageProps) {
               </Link>
             </div>
           </div>
-          <Card className="space-y-4">
+          <Card className="overflow-hidden">
             <div className="relative aspect-[4/3] overflow-hidden rounded-xl">
               <Image
-                src={nextEventImage}
-                alt={nextEventTitle}
+                src={defaultEventImage}
+                alt="Bykirken"
                 fill
                 sizes="(max-width: 1024px) 100vw, 30vw"
                 className="object-cover"
               />
             </div>
-            <div className="space-y-2">
-              <p className="text-sm uppercase tracking-[0.2em] text-stone-500">
-                Denne uken
-              </p>
-              <Subheading>{nextEventTitle}</Subheading>
-              <BodyText>
-                {nextEventDate
-                  ? `${nextEventDate} · ${nextEventLocation}`
-                  : 'Ingen publiserte arrangementer enda.'}
-              </BodyText>
-              <Link className={buttonVariants('ghost')} href="/kalender">
-                Se kalender
-              </Link>
-            </div>
           </Card>
         </div>
-      </section>
-
-      <section className="container-layout space-y-8 py-14">
-        <div className="flex flex-col gap-2">
-          <Subheading>Kommende event</Subheading>
-          <BodyText>Hold av tid til neste samling i fellesskapet.</BodyText>
-        </div>
-        <Card className="space-y-3">
-          <h3 className="text-lg font-semibold text-stone-900">
-            {nextEventTitle}
-          </h3>
-          <BodyText>
-            {nextEventDate
-              ? `${nextEventDate} · ${nextEventLocation}`
-              : 'Neste arrangement legges ut snart. Sjekk kalenderen for oppdateringer.'}
-          </BodyText>
-          <Link className={buttonVariants('primary')} href="/kalender">
-            Se hele kalenderen
-          </Link>
-        </Card>
       </section>
 
       <section className="container-layout space-y-8 pb-14">
@@ -163,13 +126,15 @@ export default async function HomePage({ searchParams }: HomePageProps) {
         </div>
         <div className="grid gap-6 md:grid-cols-3">
           {quickLinks.map((link) => (
-            <Card key={link.title} className="space-y-3">
-              <h3 className="text-lg font-semibold text-stone-900">
-                {link.title}
-              </h3>
-              <BodyText>{link.description}</BodyText>
+            <Card key={link.title} className="flex h-full flex-col gap-3">
+              <div className="space-y-3">
+                <h3 className="text-lg font-semibold text-stone-900">
+                  {link.title}
+                </h3>
+                <BodyText>{link.description}</BodyText>
+              </div>
 
-              <Link className={buttonVariants('ghost')} href={link.href}>
+              <Link className={buttonVariants('ghost') + ' mt-auto'} href={link.href}>
                 Gå til {link.title.toLowerCase()}
               </Link>
             </Card>
@@ -188,15 +153,23 @@ export default async function HomePage({ searchParams }: HomePageProps) {
           <div className="grid gap-6 md:grid-cols-3">
             {latestPosts.length ? (
               latestPosts.map((post) => {
-                const title =
-                  resolveLocalizedField(post.title, locale, fallbackLocale) ??
-                  'Nyhet';
+                const titleResult = resolveLocalizedFieldWithMeta(
+                  post.title,
+                  locale,
+                  fallbackLocale,
+                );
+                const excerptResult = resolveLocalizedFieldWithMeta(
+                  post.excerpt,
+                  locale,
+                  fallbackLocale,
+                );
+                const title = titleResult.value ?? 'Nyhet';
                 const excerpt =
-                  resolveLocalizedField(post.excerpt, locale, fallbackLocale) ??
+                  excerptResult.value ??
                   'Siste oppdateringer fra Bykirken kommer snart.';
 
                 return (
-                  <Card key={post.id} className="space-y-3">
+                  <Card key={post.id} className="flex h-full flex-col gap-3">
                     <div className="relative h-40 overflow-hidden rounded-xl">
                       <Image
                         src={
@@ -209,12 +182,26 @@ export default async function HomePage({ searchParams }: HomePageProps) {
                         className="object-cover"
                       />
                     </div>
-                    <h3 className="text-lg font-semibold text-stone-900">
-                      {title}
-                    </h3>
-                    <BodyText>{excerpt}</BodyText>
+                    <div className="space-y-3">
+                      <h3 className="text-lg font-semibold text-stone-900">
+                        <AutoTranslatedText
+                          text={title}
+                          sourceLocale={titleResult.sourceLocale ?? fallbackLocale}
+                          targetLocale={locale}
+                          enabled={titleResult.missingRequestedLocale}
+                        />
+                      </h3>
+                      <BodyText>
+                        <AutoTranslatedText
+                          text={excerpt}
+                          sourceLocale={excerptResult.sourceLocale ?? fallbackLocale}
+                          targetLocale={locale}
+                          enabled={excerptResult.missingRequestedLocale}
+                        />
+                      </BodyText>
+                    </div>
                     <Link
-                      className={buttonVariants('ghost')}
+                      className={buttonVariants('ghost') + ' mt-auto'}
                       href={`/nyheter/${post.slug}`}
                     >
                       Les mer

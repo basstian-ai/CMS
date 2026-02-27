@@ -6,10 +6,14 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { LanguageToggle } from "@/components/ui/language-toggle";
 import { MobileMenu } from "@/components/ui/mobile-menu";
+import { PageAutoTranslator } from "@/components/ui/page-auto-translator";
 
 export default function PublicLayout({ children }: PropsWithChildren) {
   return (
     <div className="min-h-screen bg-[#f7f3ed] text-stone-900">
+      <Suspense fallback={null}>
+        <PageAutoTranslator />
+      </Suspense>
       <header className="border-b border-[#e6ddcf] bg-[#fffaf3]">
         <div className="container-layout flex items-center justify-between py-4">
           <Link href="/" className="flex items-center gap-3">

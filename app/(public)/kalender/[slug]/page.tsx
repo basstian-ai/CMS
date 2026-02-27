@@ -2,9 +2,15 @@ import type { Metadata } from "next";
 import { cookies } from "next/headers";
 import { notFound } from "next/navigation";
 
-import { MarkdownRenderer } from "@/components/markdown-renderer";
+import { AutoTranslatedMarkdown } from "@/components/auto-translated-markdown";
+import { AutoTranslatedText } from "@/components/ui/auto-translated-text";
 import { Heading } from "@/components/ui/typography";
-import { getEventBySlug, normalizeLocale, resolveLocalizedField } from "@/lib/data";
+import {
+  getEventBySlug,
+  normalizeLocale,
+  resolveLocalizedField,
+  resolveLocalizedFieldWithMeta,
+} from "@/lib/data";
 import { toMetadataDescription } from "@/lib/utils/metadata";
 
 export const revalidate = 1800;
@@ -90,22 +96,43 @@ export default async function CalendarDetailPage({
     notFound();
   }
 
-  const title = resolveLocalizedField(event.title, locale, fallbackLocale) ?? "Arrangement";
-  const description =
-    resolveLocalizedField(event.description_md, locale, fallbackLocale) ??
-    "Detaljer kommer snart.";
+  const titleResult = resolveLocalizedFieldWithMeta(
+    event.title,
+    locale,
+    fallbackLocale,
+  );
+  const descriptionResult = resolveLocalizedFieldWithMeta(
+    event.description_md,
+    locale,
+    fallbackLocale,
+  );
+  const title = titleResult.value ?? "Arrangement";
+  const description = descriptionResult.value ?? "Detaljer kommer snart.";
 
   return (
     <section className="container-layout space-y-8 py-16">
       <header className="space-y-3">
-        <Heading>{title}</Heading>
+        <Heading>
+          <AutoTranslatedText
+            text={title}
+            sourceLocale={titleResult.sourceLocale ?? fallbackLocale}
+            targetLocale={locale}
+            enabled={titleResult.missingRequestedLocale}
+          />
+        </Heading>
         <div className="space-y-1 text-sm text-stone-500">
           <p>{formatEventDate(event.start_time, event.end_time)}</p>
           {event.location ? <p>{event.location}</p> : null}
         </div>
       </header>
 
-      <MarkdownRenderer content={description} className="max-w-3xl" />
+      <AutoTranslatedMarkdown
+        content={description}
+        sourceLocale={descriptionResult.sourceLocale ?? fallbackLocale}
+        targetLocale={locale}
+        enabled={descriptionResult.missingRequestedLocale}
+        className="max-w-3xl"
+      />
     </section>
   );
 }

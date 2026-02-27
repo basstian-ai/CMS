@@ -1,4 +1,4 @@
-import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { createSupabasePublicClient } from "@/lib/supabase/server";
 import type { LocalizedField } from "@/lib/data/localization";
 
 export type PublicEvent = {
@@ -46,7 +46,7 @@ function normalizeEvents(events: LegacyPublicEvent[]) {
 }
 
 export async function getUpcomingEvents(limit: number) {
-  const supabase = createSupabaseServerClient();
+  const supabase = createSupabasePublicClient();
   const now = publishedFilter.now();
   const publishedAtFilter = `published_at.is.null,published_at.lte.${now}`;
   const upcomingFilter = `start_time.gte.${now},end_time.gte.${now}`;
@@ -87,7 +87,7 @@ export async function getUpcomingEvents(limit: number) {
 }
 
 export async function getEventBySlug(slug: string) {
-  const supabase = createSupabaseServerClient();
+  const supabase = createSupabasePublicClient();
   const now = publishedFilter.now();
   const { data, error } = await supabase
     .from("events")

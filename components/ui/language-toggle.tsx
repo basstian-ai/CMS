@@ -25,7 +25,7 @@ function setLanguageCookie(locale: string) {
   if (typeof document === "undefined") {
     return;
   }
-  document.cookie = `lang=${encodeURIComponent(locale)}; path=/; max-age=31536000`;
+  document.cookie = `lang=${encodeURIComponent(locale)}; path=/; max-age=31536000; samesite=lax`;
 }
 
 export function LanguageToggle() {
@@ -36,6 +36,17 @@ export function LanguageToggle() {
   useEffect(() => {
     setCookieLocale(readCookieLocale());
   }, []);
+
+  useEffect(() => {
+    const searchLocale = searchParams.get("lang");
+    if (!searchLocale) {
+      return;
+    }
+
+    const normalized = normalizeLocale(searchLocale, "no");
+    setLanguageCookie(normalized);
+    setCookieLocale(normalized);
+  }, [searchParams]);
 
   const currentLocale = useMemo(() => {
     const searchLocale = searchParams.get("lang");
@@ -49,14 +60,20 @@ export function LanguageToggle() {
   };
 
   return (
-    <div className="flex items-center gap-1 rounded-full bg-[#efe5d8] p-1 text-xs font-semibold text-stone-700">
+    <div
+      className="flex items-center gap-1 rounded-full bg-[#efe5d8] p-1 text-xs font-semibold text-stone-700"
+      data-no-auto-translate
+    >
       {locales.map((locale) => {
         const isActive = currentLocale === locale.value;
         return (
           <Link
             key={locale.value}
             href={createHref(locale.value)}
-            onClick={() => setLanguageCookie(locale.value)}
+            onClick={() => {
+              setLanguageCookie(locale.value);
+              setCookieLocale(locale.value);
+            }}
             className={cn(
               "rounded-full px-3 py-1 transition",
               isActive

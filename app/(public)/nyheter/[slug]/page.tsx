@@ -3,9 +3,15 @@ import { cookies } from "next/headers";
 import Image from "next/image";
 import { notFound } from "next/navigation";
 
-import { MarkdownRenderer } from "@/components/markdown-renderer";
+import { AutoTranslatedMarkdown } from "@/components/auto-translated-markdown";
+import { AutoTranslatedText } from "@/components/ui/auto-translated-text";
 import { BodyText, Heading } from "@/components/ui/typography";
-import { getPostBySlug, normalizeLocale, resolveLocalizedField } from "@/lib/data";
+import {
+  getPostBySlug,
+  normalizeLocale,
+  resolveLocalizedField,
+  resolveLocalizedFieldWithMeta,
+} from "@/lib/data";
 import { toMetadataDescription } from "@/lib/utils/metadata";
 import { resolvePublicImageUrl } from "@/lib/utils/media";
 
@@ -69,18 +75,32 @@ export default async function NewsDetailPage({
     notFound();
   }
 
-  const title =
-    resolveLocalizedField(post.title, locale, fallbackLocale) ?? "Nyhet";
-  const content =
-    resolveLocalizedField(post.content_md, locale, fallbackLocale) ??
-    "Innholdet er ikke tilgjengelig ennå.";
+  const titleResult = resolveLocalizedFieldWithMeta(
+    post.title,
+    locale,
+    fallbackLocale,
+  );
+  const contentResult = resolveLocalizedFieldWithMeta(
+    post.content_md,
+    locale,
+    fallbackLocale,
+  );
+  const title = titleResult.value ?? "Nyhet";
+  const content = contentResult.value ?? "Innholdet er ikke tilgjengelig ennå.";
   const publishedAt = post.published_at ? formatPublishedDate(post.published_at) : null;
   const coverImageUrl = resolvePublicImageUrl(post.cover_image_path);
 
   return (
     <article className="container-layout space-y-8 py-16">
       <header className="space-y-3">
-        <Heading>{title}</Heading>
+        <Heading>
+          <AutoTranslatedText
+            text={title}
+            sourceLocale={titleResult.sourceLocale ?? fallbackLocale}
+            targetLocale={locale}
+            enabled={titleResult.missingRequestedLocale}
+          />
+        </Heading>
         <BodyText>
           {publishedAt ? `Publisert ${publishedAt}` : "Publiseringsdato kommer snart"}
         </BodyText>
@@ -97,7 +117,13 @@ export default async function NewsDetailPage({
         />
       ) : null}
 
-      <MarkdownRenderer content={content} className="space-y-4" />
+      <AutoTranslatedMarkdown
+        content={content}
+        sourceLocale={contentResult.sourceLocale ?? fallbackLocale}
+        targetLocale={locale}
+        enabled={contentResult.missingRequestedLocale}
+        className="space-y-4"
+      />
     </article>
   );
 }
