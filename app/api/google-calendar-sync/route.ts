@@ -1,4 +1,4 @@
-import ical from "node-ical";
+import type { VEvent } from "node-ical";
 import { createClient } from "@supabase/supabase-js";
 import { NextResponse } from "next/server";
 
@@ -56,12 +56,27 @@ function toIsoDate(value?: Date | string | null) {
   return date.toISOString();
 }
 
-function isCancelled(event: { status?: string | null } | null) {
-  return event?.status?.toLowerCase?.() === "cancelled";
+function getIcalTextValue(value: unknown) {
+  if (typeof value === "string") {
+    return value.trim();
+  }
+
+  if (value && typeof value === "object" && "val" in value) {
+    const maybeValue = (value as { val?: unknown }).val;
+    if (typeof maybeValue === "string") {
+      return maybeValue.trim();
+    }
+  }
+
+  return "";
 }
 
-function isBusyPlaceholder(event: { summary?: string | null } | null) {
-  const normalizedSummary = event?.summary?.trim().toLowerCase();
+function isCancelled(event: VEvent | null) {
+  return getIcalTextValue(event?.status).toLowerCase() === "cancelled";
+}
+
+function isBusyPlaceholder(event: VEvent | null) {
+  const normalizedSummary = getIcalTextValue(event?.summary).toLowerCase();
   return normalizedSummary === "busy";
 }
 
@@ -93,10 +108,16 @@ async function syncGoogleCalendar() {
 
   console.log(`Fetching calendar from ${CALENDAR_URL}`);
 
-  const calendarData = await ical.async.fromURL(CALENDAR_URL);
+  const nodeIcalModule = await import("node-ical");
+  const nodeIcal = ("default" in nodeIcalModule
+    ? nodeIcalModule.default
+    : nodeIcalModule) as {
+    async: { fromURL: (url: string) => Promise<Record<string, { type?: string }>> };
+  };
+  const calendarData = await nodeIcal.async.fromURL(CALENDAR_URL);
   const vevents = Object.values(calendarData).filter(
-    (entry) => entry?.type === "VEVENT",
-  ) as ical.VEvent[];
+    (entry): entry is VEvent => entry?.type === "VEVENT",
+  );
 
   const recordsMap = new Map();
 
@@ -113,8 +134,8 @@ async function syncGoogleCalendar() {
         continue;
       }
 
-      const title = event.summary?.trim() || "Arrangement";
-      const description = event.description?.trim() || "";
+      const title = getIcalTextValue(event.summary) || "Arrangement";
+      const description = getIcalTextValue(event.description);
       const startTime = toIsoDate(event.start);
       const endTime = toIsoDate(event.end);
       const slug = buildSlug(title, event.start, event.uid, event.recurrenceid);
@@ -126,7 +147,7 @@ async function syncGoogleCalendar() {
         description_md: { no: description, en: description },
         start_time: startTime,
         end_time: endTime,
-        location: event.location?.trim() || null,
+        location: getIcalTextValue(event.location) || null,
         status,
         published_at: status === "published" ? now.toISOString() : null,
       });
@@ -147,7 +168,7 @@ async function syncGoogleCalendar() {
           continue;
         }
 
-        const title = event.summary?.trim() || "Arrangement";
+        const title = getIcalTextValue(event.summary) || "Arrangement";
         const slug = buildSlug(title, occurrence, event.uid);
 
         // Skip if this occurrence is already handled by an explicit override
@@ -167,7 +188,7 @@ async function syncGoogleCalendar() {
           duration > 0
             ? toIsoDate(new Date(occurrence.getTime() + duration))
             : startTime;
-        const description = event.description?.trim() || "";
+        const description = getIcalTextValue(event.description);
 
         recordsMap.set(slug, {
           slug,
@@ -175,7 +196,7 @@ async function syncGoogleCalendar() {
           description_md: { no: description, en: description },
           start_time: startTime,
           end_time: endTime,
-          location: event.location?.trim() || null,
+          location: getIcalTextValue(event.location) || null,
           status: "published",
           published_at: now.toISOString(),
         });

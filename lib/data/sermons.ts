@@ -1,4 +1,4 @@
-import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { createSupabasePublicClient } from "@/lib/supabase/server";
 
 export type PublicSermon = {
   id: string;
@@ -19,7 +19,7 @@ const publishedFilter = {
 };
 
 export async function getLatestSermons(limit: number) {
-  const supabase = createSupabaseServerClient();
+  const supabase = createSupabasePublicClient();
   const now = publishedFilter.now();
   const { data, error } = await supabase
     .from("sermons")
@@ -38,7 +38,7 @@ export async function getLatestSermons(limit: number) {
 }
 
 export async function getSermonBySlug(slug: string) {
-  const supabase = createSupabaseServerClient();
+  const supabase = createSupabasePublicClient();
   const now = publishedFilter.now();
   const { data, error } = await supabase
     .from("sermons")

@@ -1,4 +1,4 @@
-import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { createSupabasePublicClient } from "@/lib/supabase/server";
 import type { LocalizedField } from "@/lib/data/localization";
 
 export type PublicPage = {
@@ -15,7 +15,7 @@ const publishedFilter = {
 };
 
 export async function getPageBySlug(slug: string) {
-  const supabase = createSupabaseServerClient();
+  const supabase = createSupabasePublicClient();
   const now = publishedFilter.now();
   const { data, error } = await supabase
     .from("pages")

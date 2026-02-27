@@ -3,9 +3,35 @@ import { createServerClient, type CookieOptions } from "@supabase/ssr";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? "";
+const supportedLocales = new Set(["no", "en"]);
+
+function clearSupabaseCookies(request: NextRequest, response: NextResponse) {
+  for (const cookie of request.cookies.getAll()) {
+    if (!cookie.name.startsWith("sb-")) {
+      continue;
+    }
+    response.cookies.set({
+      name: cookie.name,
+      value: "",
+      path: "/",
+      maxAge: 0,
+    });
+  }
+}
 
 export async function middleware(request: NextRequest) {
   const response = NextResponse.next();
+  const queryLocale = request.nextUrl.searchParams.get("lang");
+
+  if (queryLocale && supportedLocales.has(queryLocale)) {
+    response.cookies.set({
+      name: "lang",
+      value: queryLocale,
+      path: "/",
+      maxAge: 60 * 60 * 24 * 365,
+      sameSite: "lax",
+    });
+  }
 
   if (process.env.VERCEL_ENV === "preview") {
     response.headers.set("X-Robots-Tag", "noindex");
@@ -35,9 +61,13 @@ export async function middleware(request: NextRequest) {
       },
     });
 
-    const {
-      data: { session },
-    } = await supabase.auth.getSession();
+    let session = null;
+    try {
+      const { data } = await supabase.auth.getSession();
+      session = data.session;
+    } catch {
+      clearSupabaseCookies(request, response);
+    }
 
     if (!session) {
       const loginUrl = request.nextUrl.clone();

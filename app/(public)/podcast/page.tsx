@@ -42,7 +42,7 @@ export default async function PodcastPage() {
 
             return (
               <Card key={sermon.id} className="flex h-full flex-col gap-4">
-                <div className="space-y-2">
+                <div className="flex-1 space-y-2">
                   <h2 className="text-lg font-semibold text-stone-900">
                     {sermon.title}
                   </h2>
@@ -56,7 +56,7 @@ export default async function PodcastPage() {
                   </div>
                 </div>
                 <Link
-                  className={buttonVariants("ghost")}
+                  className={`${buttonVariants("ghost")} mt-auto`}
                   href={`/podcast/${sermon.slug}`}
                 >
                   Åpne episode

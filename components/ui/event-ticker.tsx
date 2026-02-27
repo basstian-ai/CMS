@@ -4,9 +4,13 @@ import Link from 'next/link';
 import type { Route } from 'next';
 import { useEffect, useState } from 'react';
 
+import { AutoTranslatedText } from '@/components/ui/auto-translated-text';
+
 type EventTickerItem = {
   id: string;
   title: string;
+  titleSourceLocale: string;
+  shouldAutoTranslateTitle: boolean;
   dateLabel: string;
   location: string;
   href: Route;
@@ -14,9 +18,10 @@ type EventTickerItem = {
 
 type EventTickerProps = {
   items: EventTickerItem[];
+  locale: string;
 };
 
-export function EventTicker({ items }: EventTickerProps) {
+export function EventTicker({ items, locale }: EventTickerProps) {
   const [activeIndex, setActiveIndex] = useState(0);
 
   useEffect(() => {
@@ -57,7 +62,14 @@ export function EventTicker({ items }: EventTickerProps) {
               href={activeItem.href}
               className="text-sm text-stone-700 transition hover:text-stone-950"
             >
-              <span className="font-semibold">{activeItem.title}</span>
+              <span className="font-semibold">
+                <AutoTranslatedText
+                  text={activeItem.title}
+                  sourceLocale={activeItem.titleSourceLocale}
+                  targetLocale={locale}
+                  enabled={activeItem.shouldAutoTranslateTitle}
+                />
+              </span>
               <span className="mx-2 text-stone-400">•</span>
               <span>{activeItem.dateLabel}</span>
               <span className="mx-2 text-stone-400">•</span>
