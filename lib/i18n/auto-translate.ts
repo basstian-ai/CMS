@@ -173,24 +173,28 @@ async function getTranslator(sourceLanguage: string, targetLanguage: string) {
   }
 
   const translatorPromise = (async () => {
-    const translatorApi = getTranslatorApi();
-    if (!translatorApi) {
+    try {
+      const translatorApi = getTranslatorApi();
+      if (!translatorApi) {
+        return null;
+      }
+
+      const availability = await translatorApi.availability({
+        sourceLanguage,
+        targetLanguage,
+      });
+
+      if (availability === "unavailable") {
+        return null;
+      }
+
+      return await translatorApi.create({
+        sourceLanguage,
+        targetLanguage,
+      });
+    } catch {
       return null;
     }
-
-    const availability = await translatorApi.availability({
-      sourceLanguage,
-      targetLanguage,
-    });
-
-    if (availability === "unavailable") {
-      return null;
-    }
-
-    return translatorApi.create({
-      sourceLanguage,
-      targetLanguage,
-    });
   })();
 
   translatorCache.set(pairKey, translatorPromise);
