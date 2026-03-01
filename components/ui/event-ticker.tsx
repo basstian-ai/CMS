@@ -23,6 +23,8 @@ type EventTickerProps = {
 
 export function EventTicker({ items, locale }: EventTickerProps) {
   const [activeIndex, setActiveIndex] = useState(0);
+  const [isPaused, setIsPaused] = useState(false);
+  const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
 
   useEffect(() => {
     setActiveIndex((current) =>
@@ -31,7 +33,32 @@ export function EventTicker({ items, locale }: EventTickerProps) {
   }, [items.length]);
 
   useEffect(() => {
-    if (items.length < 2) {
+    if (typeof window === 'undefined') {
+      return;
+    }
+
+    const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const updatePreference = () => {
+      setPrefersReducedMotion(mediaQuery.matches);
+    };
+
+    updatePreference();
+
+    if ('addEventListener' in mediaQuery) {
+      mediaQuery.addEventListener('change', updatePreference);
+      return () => {
+        mediaQuery.removeEventListener('change', updatePreference);
+      };
+    }
+
+    mediaQuery.addListener(updatePreference);
+    return () => {
+      mediaQuery.removeListener(updatePreference);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (items.length < 2 || isPaused || prefersReducedMotion) {
       return;
     }
 
@@ -42,13 +69,14 @@ export function EventTicker({ items, locale }: EventTickerProps) {
     return () => {
       window.clearInterval(tickerInterval);
     };
-  }, [items.length]);
+  }, [isPaused, items.length, prefersReducedMotion]);
 
   if (!items.length) {
     return null;
   }
 
   const activeItem = items[activeIndex];
+  const canPauseRotation = items.length > 1 && !prefersReducedMotion;
 
   return (
     <section className="border-b border-[#e6ddcf] bg-[#f3ece1]">
@@ -56,26 +84,43 @@ export function EventTicker({ items, locale }: EventTickerProps) {
         <p className="text-xs font-semibold uppercase tracking-[0.18em] text-stone-600">
           Kommende eventer
         </p>
-        <div className="relative mt-1 min-h-[2rem]">
-          <div key={activeItem.id}>
-            <Link
-              href={activeItem.href}
-              className="text-sm text-stone-700 transition hover:text-stone-950"
-            >
-              <span className="font-semibold">
-                <AutoTranslatedText
-                  text={activeItem.title}
-                  sourceLocale={activeItem.titleSourceLocale}
-                  targetLocale={locale}
-                  enabled={activeItem.shouldAutoTranslateTitle}
-                />
-              </span>
-              <span className="mx-2 text-stone-400">•</span>
-              <span>{activeItem.dateLabel}</span>
-              <span className="mx-2 text-stone-400">•</span>
-              <span>{activeItem.location}</span>
-            </Link>
+        <p id="event-ticker-instructions" className="sr-only">
+          Kommende eventer roterer automatisk. Bruk pauseknappen for å stoppe
+          rotasjonen.
+        </p>
+        <div className="mt-1 flex items-start justify-between gap-3">
+          <div className="relative min-h-[2rem]">
+            <div key={activeItem.id}>
+              <Link
+                href={activeItem.href}
+                className="text-sm text-stone-700 transition hover:text-stone-950"
+              >
+                <span className="font-semibold">
+                  <AutoTranslatedText
+                    text={activeItem.title}
+                    sourceLocale={activeItem.titleSourceLocale}
+                    targetLocale={locale}
+                    enabled={activeItem.shouldAutoTranslateTitle}
+                  />
+                </span>
+                <span className="mx-2 text-stone-400">•</span>
+                <span>{activeItem.dateLabel}</span>
+                <span className="mx-2 text-stone-400">•</span>
+                <span>{activeItem.location}</span>
+              </Link>
+            </div>
           </div>
+          {canPauseRotation ? (
+            <button
+              type="button"
+              aria-pressed={isPaused}
+              aria-describedby="event-ticker-instructions"
+              onClick={() => setIsPaused((current) => !current)}
+              className="shrink-0 rounded-full border border-[#d9cfbf] bg-[#fffaf3] px-3 py-1 text-xs font-semibold text-stone-700 transition hover:bg-[#efe5d8]"
+            >
+              {isPaused ? 'Fortsett' : 'Pause'}
+            </button>
+          ) : null}
         </div>
       </div>
     </section>

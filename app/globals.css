@@ -14,3 +14,30 @@ body {
 .container-layout {
   @apply mx-auto w-full max-w-6xl px-6;
 }
+
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid #683d1b;
+  outline-offset: 2px;
+}
+
+.skip-link {
+  position: absolute;
+  left: 1rem;
+  top: -4rem;
+  z-index: 60;
+  border-radius: 9999px;
+  background-color: #fffaf3;
+  border: 1px solid #e6ddcf;
+  padding: 0.5rem 1rem;
+  color: #1c1917;
+  text-decoration: none;
+  transition: top 150ms ease;
+}
+
+.skip-link:focus-visible {
+  top: 1rem;
+}
