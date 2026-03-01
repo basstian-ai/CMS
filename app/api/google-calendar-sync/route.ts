@@ -222,40 +222,38 @@ async function syncGoogleCalendar() {
 
   const records = Array.from(recordsMap.values());
 
-  if (!records.length) {
-    return { synced: 0, cancelled: 0, reconciled: 0 };
-  }
-
-  const recordsWithSource = records.map((record) => ({
-    ...record,
-    sync_source: SYNC_SOURCE,
-  }));
-
-  const { error: upsertWithSourceError } = await supabase
-    .from("events")
-    .upsert(recordsWithSource, { onConflict: "slug" });
-
   let supportsSyncMetadata = true;
 
-  if (upsertWithSourceError) {
-    if (!isMissingSyncColumnError(upsertWithSourceError)) {
-      throw upsertWithSourceError;
-    }
+  if (records.length) {
+    const recordsWithSource = records.map((record) => ({
+      ...record,
+      sync_source: SYNC_SOURCE,
+    }));
 
-    supportsSyncMetadata = false;
-    console.warn(
-      "Events table is missing sync_source/external_uid columns. Falling back to upsert-only sync without deletion reconciliation.",
-    );
-
-    const { error: legacyUpsertError } = await supabase
+    const { error: upsertWithSourceError } = await supabase
       .from("events")
-      .upsert(
-        records.map(({ external_uid: _externalUid, ...legacyRecord }) => legacyRecord),
-        { onConflict: "slug" },
+      .upsert(recordsWithSource, { onConflict: "slug" });
+
+    if (upsertWithSourceError) {
+      if (!isMissingSyncColumnError(upsertWithSourceError)) {
+        throw upsertWithSourceError;
+      }
+
+      supportsSyncMetadata = false;
+      console.warn(
+        "Events table is missing sync_source/external_uid columns. Falling back to upsert-only sync without deletion reconciliation.",
       );
 
-    if (legacyUpsertError) {
-      throw legacyUpsertError;
+      const { error: legacyUpsertError } = await supabase
+        .from("events")
+        .upsert(
+          records.map(({ external_uid: _externalUid, ...legacyRecord }) => legacyRecord),
+          { onConflict: "slug" },
+        );
+
+      if (legacyUpsertError) {
+        throw legacyUpsertError;
+      }
     }
   }
 
