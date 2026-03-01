@@ -226,7 +226,30 @@ async function run() {
         );
 
       if (upsertWithoutExternalUidError) {
-        throw upsertWithoutExternalUidError;
+        const { missingSyncSource: missingSyncSourceOnRetry } =
+          getMissingSyncColumns(upsertWithoutExternalUidError);
+
+        if (!missingSyncSourceOnRetry) {
+          throw upsertWithoutExternalUidError;
+        }
+
+        supportsSyncSource = false;
+        console.warn(
+          "Events table is also missing sync_source. Falling back to legacy upsert-only sync without deletion reconciliation.",
+        );
+
+        const { error: legacyUpsertError } = await supabase
+          .from("events")
+          .upsert(
+            records.map(
+              ({ external_uid: _externalUid, ...legacyRecord }) => legacyRecord,
+            ),
+            { onConflict: "slug" },
+          );
+
+        if (legacyUpsertError) {
+          throw legacyUpsertError;
+        }
       }
     }
   }
