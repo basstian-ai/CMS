@@ -66,17 +66,21 @@ function isCancelled(event) {
   return event?.status?.toLowerCase?.() === "cancelled";
 }
 
-function isMissingSyncColumnError(error) {
+function getMissingSyncColumns(error) {
   const isMissingColumnCode = error?.code === "42703";
   const isMissingSchemaCacheCode = error?.code === "PGRST204";
   const errorText = [error?.message, error?.details, error?.hint]
     .join(" ")
     .toLowerCase();
 
-  return (
-    (isMissingColumnCode || isMissingSchemaCacheCode) &&
-    (errorText.includes("sync_source") || errorText.includes("external_uid"))
-  );
+  if (!isMissingColumnCode && !isMissingSchemaCacheCode) {
+    return { missingSyncSource: false, missingExternalUid: false };
+  }
+
+  return {
+    missingSyncSource: errorText.includes("sync_source"),
+    missingExternalUid: errorText.includes("external_uid"),
+  };
 }
 
 async function run() {
@@ -169,44 +173,67 @@ async function run() {
     return;
   }
 
-  const recordsWithSource = records.map((record) => ({
+  const recordsWithSyncMetadata = records.map((record) => ({
     ...record,
     sync_source: SYNC_SOURCE,
   }));
 
-  const { error: upsertWithSourceError } = await supabase
+  const { error: upsertWithSyncMetadataError } = await supabase
     .from("events")
-    .upsert(recordsWithSource, { onConflict: "slug" });
+    .upsert(recordsWithSyncMetadata, { onConflict: "slug" });
 
-  let supportsSyncMetadata = true;
+  let supportsSyncSource = true;
 
-  if (upsertWithSourceError) {
-    if (!isMissingSyncColumnError(upsertWithSourceError)) {
-      throw upsertWithSourceError;
-    }
-
-    supportsSyncMetadata = false;
-    console.warn(
-      "Events table is missing sync_source/external_uid columns. Falling back to upsert-only sync without deletion reconciliation.",
+  if (upsertWithSyncMetadataError) {
+    const { missingExternalUid, missingSyncSource } = getMissingSyncColumns(
+      upsertWithSyncMetadataError,
     );
 
-    const { error: legacyUpsertError } = await supabase
-      .from("events")
-      .upsert(
-        records.map(
-          ({ external_uid: _externalUid, ...legacyRecord }) => legacyRecord,
-        ),
-        { onConflict: "slug" },
+    if (!missingExternalUid && !missingSyncSource) {
+      throw upsertWithSyncMetadataError;
+    }
+
+    if (missingSyncSource) {
+      supportsSyncSource = false;
+      console.warn(
+        "Events table is missing sync_source. Falling back to legacy upsert-only sync without deletion reconciliation.",
       );
 
-    if (legacyUpsertError) {
-      throw legacyUpsertError;
+      const { error: legacyUpsertError } = await supabase
+        .from("events")
+        .upsert(
+          records.map(
+            ({ external_uid: _externalUid, ...legacyRecord }) => legacyRecord,
+          ),
+          { onConflict: "slug" },
+        );
+
+      if (legacyUpsertError) {
+        throw legacyUpsertError;
+      }
+    } else {
+      console.warn(
+        "Events table is missing external_uid. Continuing sync with sync_source metadata only.",
+      );
+
+      const { error: upsertWithoutExternalUidError } = await supabase
+        .from("events")
+        .upsert(
+          recordsWithSyncMetadata.map(
+            ({ external_uid: _externalUid, ...record }) => record,
+          ),
+          { onConflict: "slug" },
+        );
+
+      if (upsertWithoutExternalUidError) {
+        throw upsertWithoutExternalUidError;
+      }
     }
   }
 
   let reconciledCount = 0;
 
-  if (supportsSyncMetadata) {
+  if (supportsSyncSource) {
     const syncedSlugs = new Set(records.map((record) => record.slug));
     const { data: existingGoogleEvents, error: existingEventsError } =
       await supabase
