@@ -25,12 +25,17 @@ Kopier `.env.example` til `.env.local` og fyll inn følgende:
 NEXT_PUBLIC_SITE_URL=
 NEXT_PUBLIC_SUPABASE_URL=
 NEXT_PUBLIC_SUPABASE_ANON_KEY=
+NEXT_PUBLIC_SOCIAL_INSTAGRAM_URL=
+NEXT_PUBLIC_SOCIAL_FACEBOOK_URL=
+NEXT_PUBLIC_SOCIAL_SPOTIFY_URL=
 SUPABASE_URL=
 SUPABASE_SERVICE_ROLE_KEY=
 SUPABASE_JWT_SECRET=
 GOOGLE_CALENDAR_ICS_URL=
 CRON_SECRET=
 ```
+
+`NEXT_PUBLIC_SOCIAL_*` brukes i footer på publikumssidene. Hvis en URL mangler, skjules den lenken automatisk.
 
 ### Google Calendar → Supabase sync
 For å importere en offentlig Google Calendar til tabellen `events`, bruk skriptet under. Det henter en offentlig `.ics`-feed og oppdaterer `events` med `status = published`.
@@ -44,6 +49,7 @@ npm run sync:google-calendar
 ```
 
 Skriptet bruker `slug` som unik nøkkel og gjør en `upsert`, så kjør det gjerne som et cron-jobb.
+Synken gjør også en reconcile av Google-importerte events i synk-vinduet (ca. 30 dager tilbake og 180 dager frem): events som ikke lenger finnes i Google-feeden markeres som `cancelled` i Supabase.
 
 #### Automatisk cron i Vercel
 Prosjektet har en API-route på `/api/google-calendar-sync` og en cron-konfig i `vercel.json` som kjører daglig kl. 03:00 (UTC).
@@ -55,7 +61,7 @@ For å få dette til å kjøre i produksjon:
 
 
 ### Supabase (milepæl 2)
-- Kjør migrasjonen i `db/migrations/0001_init.sql` i Supabase SQL editor.
+- Kjør migrasjonene i `db/migrations/` i rekkefølge (inkludert `0006_add_events_sync_metadata.sql` for Google Calendar reconcile).
 - Opprett en admin-bruker og sett rollen i `profiles` til `admin`.
 
 ### Vercel

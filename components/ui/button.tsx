@@ -7,7 +7,7 @@ type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
 };
 
 const buttonBaseClasses =
-  "inline-flex items-center justify-center rounded-full px-5 py-2 text-sm font-semibold transition";
+  "inline-flex items-center justify-center rounded-full px-5 py-2 text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-700 focus-visible:ring-offset-2";
 
 const variants: Record<NonNullable<ButtonProps["variant"]>, string> = {
   primary: "bg-brand-600 text-white hover:bg-brand-700",

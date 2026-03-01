@@ -21,6 +21,7 @@ const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
 });
 
 const now = new Date();
+const SYNC_SOURCE = "google-calendar";
 
 function toSlug(value) {
   return value
@@ -65,6 +66,19 @@ function isCancelled(event) {
   return event?.status?.toLowerCase?.() === "cancelled";
 }
 
+function isMissingSyncColumnError(error) {
+  const isMissingColumnCode = error?.code === "42703";
+  const isMissingSchemaCacheCode = error?.code === "PGRST204";
+  const errorText = [error?.message, error?.details, error?.hint]
+    .join(" ")
+    .toLowerCase();
+
+  return (
+    (isMissingColumnCode || isMissingSchemaCacheCode) &&
+    (errorText.includes("sync_source") || errorText.includes("external_uid"))
+  );
+}
+
 async function run() {
   console.log(`Fetching calendar from ${CALENDAR_URL}`);
   const calendarData = await ical.async.fromURL(CALENDAR_URL);
@@ -96,6 +110,7 @@ async function run() {
         location: event.location?.trim() || null,
         status,
         published_at: status === "published" ? now.toISOString() : null,
+        external_uid: event.uid?.trim() || null,
       });
     }
   }
@@ -141,6 +156,7 @@ async function run() {
           location: event.location?.trim() || null,
           status: "published",
           published_at: now.toISOString(),
+          external_uid: event.uid?.trim() || null,
         });
       }
     }
@@ -153,19 +169,86 @@ async function run() {
     return;
   }
 
-  const { error } = await supabase
-    .from("events")
-    .upsert(records, { onConflict: "slug" });
+  const recordsWithSource = records.map((record) => ({
+    ...record,
+    sync_source: SYNC_SOURCE,
+  }));
 
-  if (error) {
-    throw error;
+  const { error: upsertWithSourceError } = await supabase
+    .from("events")
+    .upsert(recordsWithSource, { onConflict: "slug" });
+
+  let supportsSyncMetadata = true;
+
+  if (upsertWithSourceError) {
+    if (!isMissingSyncColumnError(upsertWithSourceError)) {
+      throw upsertWithSourceError;
+    }
+
+    supportsSyncMetadata = false;
+    console.warn(
+      "Events table is missing sync_source/external_uid columns. Falling back to upsert-only sync without deletion reconciliation.",
+    );
+
+    const { error: legacyUpsertError } = await supabase
+      .from("events")
+      .upsert(
+        records.map(
+          ({ external_uid: _externalUid, ...legacyRecord }) => legacyRecord,
+        ),
+        { onConflict: "slug" },
+      );
+
+    if (legacyUpsertError) {
+      throw legacyUpsertError;
+    }
+  }
+
+  let reconciledCount = 0;
+
+  if (supportsSyncMetadata) {
+    const syncedSlugs = new Set(records.map((record) => record.slug));
+    const { data: existingGoogleEvents, error: existingEventsError } =
+      await supabase
+        .from("events")
+        .select("id, slug, status")
+        .eq("sync_source", SYNC_SOURCE)
+        .gte("start_time", rangeStart.toISOString())
+        .lte("start_time", rangeEnd.toISOString());
+
+    if (existingEventsError) {
+      throw existingEventsError;
+    }
+
+    const staleIds =
+      existingGoogleEvents
+        ?.filter((event) => !syncedSlugs.has(event.slug))
+        .map((event) => event.id) ?? [];
+
+    if (staleIds.length) {
+      const { data: reconciledEvents, error: reconcileError } = await supabase
+        .from("events")
+        .update({
+          status: "cancelled",
+          published_at: null,
+        })
+        .in("id", staleIds)
+        .neq("status", "cancelled")
+        .select("id");
+
+      if (reconcileError) {
+        throw reconcileError;
+      }
+
+      reconciledCount = reconciledEvents?.length ?? 0;
+    }
   }
 
   const cancelledCount = records.filter(
     (record) => record.status === "cancelled",
   ).length;
   console.log(
-    `Synced ${records.length} events (${cancelledCount} cancelled).`,
+    `Synced ${records.length} events (${cancelledCount} cancelled from feed, ${reconciledCount} reconciled as cancelled).`,
   );
 }
 

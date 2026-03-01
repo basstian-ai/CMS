@@ -11,6 +11,7 @@ const CALENDAR_URL =
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const CRON_SECRET = process.env.CRON_SECRET;
+const SYNC_SOURCE = "google-calendar";
 
 function toSlug(value: string) {
   return value
@@ -88,6 +89,19 @@ function isWithinRange(date: Date | undefined, rangeStart: Date, rangeEnd: Date)
   return date >= rangeStart && date <= rangeEnd;
 }
 
+function isMissingSyncColumnError(
+  error: { code?: string; message?: string; details?: string; hint?: string } | null,
+) {
+  const isMissingColumnCode = error?.code === "42703";
+  const isMissingSchemaCacheCode = error?.code === "PGRST204";
+  const errorText = [error?.message, error?.details, error?.hint].join(" ").toLowerCase();
+
+  return (
+    (isMissingColumnCode || isMissingSchemaCacheCode) &&
+    (errorText.includes("sync_source") || errorText.includes("external_uid"))
+  );
+}
+
 async function syncGoogleCalendar() {
   if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
     throw new Error(
@@ -150,6 +164,7 @@ async function syncGoogleCalendar() {
         location: getIcalTextValue(event.location) || null,
         status,
         published_at: status === "published" ? now.toISOString() : null,
+        external_uid: getIcalTextValue(event.uid) || null,
       });
     }
   }
@@ -199,6 +214,7 @@ async function syncGoogleCalendar() {
           location: getIcalTextValue(event.location) || null,
           status: "published",
           published_at: now.toISOString(),
+          external_uid: getIcalTextValue(event.uid) || null,
         });
       }
     }
@@ -206,23 +222,85 @@ async function syncGoogleCalendar() {
 
   const records = Array.from(recordsMap.values());
 
-  if (!records.length) {
-    return { synced: 0, cancelled: 0 };
+  let supportsSyncMetadata = true;
+
+  if (records.length) {
+    const recordsWithSource = records.map((record) => ({
+      ...record,
+      sync_source: SYNC_SOURCE,
+    }));
+
+    const { error: upsertWithSourceError } = await supabase
+      .from("events")
+      .upsert(recordsWithSource, { onConflict: "slug" });
+
+    if (upsertWithSourceError) {
+      if (!isMissingSyncColumnError(upsertWithSourceError)) {
+        throw upsertWithSourceError;
+      }
+
+      supportsSyncMetadata = false;
+      console.warn(
+        "Events table is missing sync_source/external_uid columns. Falling back to upsert-only sync without deletion reconciliation.",
+      );
+
+      const { error: legacyUpsertError } = await supabase
+        .from("events")
+        .upsert(
+          records.map(({ external_uid: _externalUid, ...legacyRecord }) => legacyRecord),
+          { onConflict: "slug" },
+        );
+
+      if (legacyUpsertError) {
+        throw legacyUpsertError;
+      }
+    }
   }
 
-  const { error } = await supabase
-    .from("events")
-    .upsert(records, { onConflict: "slug" });
+  let reconciled = 0;
 
-  if (error) {
-    throw error;
+  if (supportsSyncMetadata) {
+    const syncedSlugs = new Set(records.map((record) => record.slug));
+    const { data: existingGoogleEvents, error: existingEventsError } = await supabase
+      .from("events")
+      .select("id, slug, status")
+      .eq("sync_source", SYNC_SOURCE)
+      .gte("start_time", rangeStart.toISOString())
+      .lte("start_time", rangeEnd.toISOString());
+
+    if (existingEventsError) {
+      throw existingEventsError;
+    }
+
+    const staleIds =
+      existingGoogleEvents
+        ?.filter((event) => !syncedSlugs.has(event.slug))
+        .map((event) => event.id) ?? [];
+
+    if (staleIds.length) {
+      const { data: reconciledEvents, error: reconcileError } = await supabase
+        .from("events")
+        .update({
+          status: "cancelled",
+          published_at: null,
+        })
+        .in("id", staleIds)
+        .neq("status", "cancelled")
+        .select("id");
+
+      if (reconcileError) {
+        throw reconcileError;
+      }
+
+      reconciled = reconciledEvents?.length ?? 0;
+    }
   }
 
   const cancelledCount = records.filter(
     (record) => record.status === "cancelled",
   ).length;
 
-  return { synced: records.length, cancelled: cancelledCount };
+  return { synced: records.length, cancelled: cancelledCount, reconciled };
 }
 
 export async function GET(request: Request) {
@@ -250,12 +328,13 @@ export async function GET(request: Request) {
   }
 
   try {
-    const { synced, cancelled } = await syncGoogleCalendar();
+    const { synced, cancelled, reconciled } = await syncGoogleCalendar();
 
     return NextResponse.json({
       ok: true,
       synced,
       cancelled,
+      reconciled,
     });
   } catch (error) {
     const message = error instanceof Error ? error.message : "Unknown error";

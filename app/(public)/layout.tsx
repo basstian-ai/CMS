@@ -3,14 +3,28 @@ import { Suspense } from "react";
 import Image from "next/image";
 import Link from "next/link";
 
-import { Button } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button";
 import { LanguageToggle } from "@/components/ui/language-toggle";
 import { MobileMenu } from "@/components/ui/mobile-menu";
 import { PageAutoTranslator } from "@/components/ui/page-auto-translator";
 
+type SocialLink = {
+  label: string;
+  href: string;
+};
+
+const socialLinks = [
+  { label: "Instagram", href: process.env.NEXT_PUBLIC_SOCIAL_INSTAGRAM_URL },
+  { label: "Facebook", href: process.env.NEXT_PUBLIC_SOCIAL_FACEBOOK_URL },
+  { label: "Spotify", href: process.env.NEXT_PUBLIC_SOCIAL_SPOTIFY_URL },
+].filter((item): item is SocialLink => Boolean(item.href));
+
 export default function PublicLayout({ children }: PropsWithChildren) {
   return (
     <div className="min-h-screen bg-[#f7f3ed] text-stone-900">
+      <a href="#main-content" className="skip-link">
+        Hopp til hovedinnhold
+      </a>
       <Suspense fallback={null}>
         <PageAutoTranslator />
       </Suspense>
@@ -51,13 +65,18 @@ export default function PublicLayout({ children }: PropsWithChildren) {
               <LanguageToggle />
             </Suspense>
             <MobileMenu />
-            <Button variant="secondary" className="hidden lg:inline-flex">
+            <Link
+              href="/gi"
+              className={`${buttonVariants("secondary")} hidden lg:inline-flex`}
+            >
               Gi
-            </Button>
+            </Link>
           </div>
         </div>
       </header>
-      <main>{children}</main>
+      <main id="main-content" tabIndex={-1}>
+        {children}
+      </main>
       <footer className="border-t border-[#e6ddcf] bg-[#fffaf3]">
         <div className="container-layout flex flex-col gap-4 py-8 text-sm text-stone-600 md:flex-row md:items-center md:justify-between">
           <div>
@@ -72,11 +91,21 @@ export default function PublicLayout({ children }: PropsWithChildren) {
             </div>
             <p>Storgata 1, 0001 Oslo · hello@bykirken.no</p>
           </div>
-          <div className="flex items-center gap-4">
-            <span>Instagram</span>
-            <span>Facebook</span>
-            <span>Spotify</span>
-          </div>
+          {socialLinks.length ? (
+            <div className="flex items-center gap-4">
+              {socialLinks.map((socialLink) => (
+                <a
+                  key={socialLink.label}
+                  href={socialLink.href}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="transition hover:text-stone-900"
+                >
+                  {socialLink.label}
+                </a>
+              ))}
+            </div>
+          ) : null}
         </div>
       </footer>
     </div>
