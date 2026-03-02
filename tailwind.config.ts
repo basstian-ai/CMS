@@ -8,7 +8,21 @@ const config: Config = {
   ],
   theme: {
     extend: {
+      fontFamily: {
+        body: ["var(--font-body)", "ui-sans-serif", "system-ui", "sans-serif"],
+        display: ["var(--font-display)", "ui-serif", "Georgia", "serif"],
+      },
       colors: {
+        canvas: "var(--color-bg)",
+        "canvas-muted": "var(--color-bg-muted)",
+        surface: "var(--color-surface)",
+        "surface-strong": "var(--color-surface-strong)",
+        ink: "var(--color-text)",
+        "ink-muted": "var(--color-text-muted)",
+        border: "var(--color-border)",
+        accent: "var(--color-accent)",
+        "accent-strong": "var(--color-accent-strong)",
+        "accent-soft": "var(--color-accent-soft)",
         brand: {
           50: "#f7f2ea",
           100: "#f0e3d0",
@@ -20,8 +34,12 @@ const config: Config = {
           700: "#683d1b",
           800: "#4d2c13",
           900: "#37200d"
-        }
-      }
+        },
+      },
+      boxShadow: {
+        soft: "var(--shadow-soft)",
+        elevated: "var(--shadow-elevated)",
+      },
     }
   },
   plugins: []

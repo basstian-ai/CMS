@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 
+import { ContentCard } from "@/components/public/content-card";
+import { EmptyState } from "@/components/public/empty-state";
+import { SectionHeader } from "@/components/public/section-header";
+import { TrackedLink } from "@/components/public/tracked-link";
 import { buttonVariants } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { BodyText, Heading } from "@/components/ui/typography";
 import { getLatestSermons } from "@/lib/data";
 
 export const revalidate = 600;
@@ -20,18 +21,42 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
+const sanitizeExcerpt = (value: string | null | undefined) => {
+  if (!value) {
+    return "Episodebeskrivelse kommer snart.";
+  }
+
+  const cleaned = value.replace(/\s+/g, " ").trim();
+
+  if (!cleaned) {
+    return "Episodebeskrivelse kommer snart.";
+  }
+
+  return cleaned.length > 170 ? `${cleaned.slice(0, 167)}...` : cleaned;
+};
+
 export default async function PodcastPage() {
   const sermons = await getLatestSermons(24);
 
   return (
-    <section className="container-layout space-y-10 py-16">
-      <header className="space-y-3">
-        <Heading>Podcast</Heading>
-        <BodyText>
-          Lytt til de siste talene fra Bykirken. Finn hele biblioteket i Spotify
-          eller Apple Podcasts.
-        </BodyText>
-      </header>
+    <section className="container-layout space-y-10 py-14 md:py-16">
+      <div className="rounded-[2rem] border border-border bg-surface p-8 shadow-soft">
+        <SectionHeader
+          eyebrow="Podcast"
+          title="Lytt til de siste talene"
+          description="Finn episoder med tema, bibelreferanser og talere fra Bykirken."
+          actions={
+            <TrackedLink
+              href="/kontakt"
+              eventName="cta_click"
+              eventPayload={{ location: "podcast_intro", target: "/kontakt" }}
+              className={buttonVariants("outline")}
+            >
+              Tips oss om tema
+            </TrackedLink>
+          }
+        />
+      </div>
 
       {sermons.length ? (
         <div className="grid gap-6 md:grid-cols-2">
@@ -41,39 +66,24 @@ export default async function PodcastPage() {
               : null;
 
             return (
-              <Card key={sermon.id} className="flex h-full flex-col gap-4">
-                <div className="flex-1 space-y-2">
-                  <h2 className="text-lg font-semibold text-stone-900">
-                    {sermon.title}
-                  </h2>
-                  <div className="text-sm text-stone-500">
-                    <p>{sermon.preacher ?? "Ukjent taler"}</p>
-                    <p>
-                      {publishedAt
-                        ? `Publisert ${publishedAt}`
-                        : "Publiseres snart"}
-                    </p>
-                  </div>
-                </div>
-                <Link
-                  className={`${buttonVariants("ghost")} mt-auto`}
-                  href={`/podcast/${sermon.slug}`}
-                >
-                  Åpne episode
-                </Link>
-              </Card>
+              <ContentCard
+                key={sermon.id}
+                title={sermon.title}
+                description={sanitizeExcerpt(sermon.description)}
+                meta={`${sermon.preacher ?? "Ukjent taler"}${publishedAt ? ` - Publisert ${publishedAt}` : " - Publiseres snart"}`}
+                href={`/podcast/${sermon.slug}`}
+                hrefLabel="Åpne episode"
+                trackingLabel={sermon.title}
+                variant="podcast"
+              />
             );
           })}
         </div>
       ) : (
-        <Card className="space-y-3">
-          <h2 className="text-lg font-semibold text-stone-900">
-            Ingen episoder publisert ennå
-          </h2>
-          <BodyText>
-            Vi oppdaterer snart med nye taler. Kom tilbake litt senere.
-          </BodyText>
-        </Card>
+        <EmptyState
+          title="Ingen episoder publisert ennå"
+          description="Vi oppdaterer snart med nye taler. Kom tilbake litt senere."
+        />
       )}
     </section>
   );

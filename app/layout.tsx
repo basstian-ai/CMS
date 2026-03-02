@@ -1,10 +1,21 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import Script from "next/script";
+import { Fraunces, Manrope } from "next/font/google";
 import { SpeedInsights } from "@vercel/speed-insights/next";
+
+import { isPublicRedesignEnabled } from "@/lib/site/public-redesign";
 
 import "./globals.css";
 
-const inter = Inter({ subsets: ["latin"] });
+const bodyFont = Manrope({
+  subsets: ["latin"],
+  variable: "--font-body",
+});
+
+const displayFont = Fraunces({
+  subsets: ["latin"],
+  variable: "--font-display",
+});
 
 export const metadata: Metadata = {
   title: "Bykirken · CMS",
@@ -14,10 +25,15 @@ export const metadata: Metadata = {
 export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
+  const shouldEnableAnalytics = isPublicRedesignEnabled();
+
   return (
-    <html lang="no" className={inter.className}>
-      <body>
+    <html lang="no" className={`${bodyFont.variable} ${displayFont.variable}`}>
+      <body className="font-body">
         {children}
+        {shouldEnableAnalytics ? (
+          <Script src="/_vercel/insights/script.js" strategy="afterInteractive" />
+        ) : null}
         <SpeedInsights />
       </body>
     </html>

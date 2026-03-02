@@ -1,21 +1,23 @@
 "use client";
 
-import Link from "next/link";
-import type { Route } from "next";
 import { useEffect, useId, useRef, useState } from "react";
+import { usePathname } from "next/navigation";
 
-const navItems = [
-  { href: "/nyheter", label: "Nyheter" },
-  { href: "/kalender", label: "Kalender" },
-  { href: "/podcast", label: "Podcast" },
-  { href: "/kontakt", label: "Kontakt" },
-] as const satisfies ReadonlyArray<{ href: Route; label: string }>;
+import { TrackedLink } from "@/components/public/tracked-link";
+import { buttonVariants } from "@/components/ui/button";
+import {
+  isNavItemActive,
+  publicNavItems,
+  publicPrimaryCta,
+} from "@/lib/site/navigation";
+import { cn } from "@/lib/utils";
 
 export function MobileMenu() {
   const [open, setOpen] = useState(false);
   const triggerRef = useRef<HTMLButtonElement | null>(null);
   const dialogRef = useRef<HTMLDivElement | null>(null);
   const dialogId = useId();
+  const pathname = usePathname() ?? "/";
 
   useEffect(() => {
     document.body.style.overflow = open ? "hidden" : "";
@@ -38,9 +40,8 @@ export function MobileMenu() {
       if (!dialog) {
         return [] as HTMLElement[];
       }
-      return Array.from(
-        dialog.querySelectorAll<HTMLElement>(focusableSelector),
-      );
+
+      return Array.from(dialog.querySelectorAll<HTMLElement>(focusableSelector));
     };
 
     const focusableElements = getFocusableElements();
@@ -109,7 +110,7 @@ export function MobileMenu() {
         aria-controls={dialogId}
         aria-haspopup="dialog"
         onClick={() => setOpen((prev) => !prev)}
-        className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-[#e6ddcf] bg-[#fffaf3] text-stone-700"
+        className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-border bg-surface text-ink-muted"
       >
         <span className="sr-only">{open ? "Lukk meny" : "Åpne meny"}</span>
         <span className="space-y-1.5">
@@ -127,7 +128,7 @@ export function MobileMenu() {
 
       {open ? (
         <div
-          className="fixed inset-0 top-[73px] z-40 bg-black/35"
+          className="fixed inset-0 top-[74px] z-40 bg-ink/35 px-5"
           onMouseDown={(event) => {
             if (event.target === event.currentTarget) {
               setOpen(false);
@@ -141,38 +142,56 @@ export function MobileMenu() {
             aria-modal="true"
             aria-label="Mobilmeny"
             tabIndex={-1}
-            className="container-layout mt-4 rounded-2xl border border-[#e6ddcf] bg-[#fffaf3] p-4 shadow-xl"
+            className="container-layout mt-4 rounded-3xl border border-border bg-surface p-5 shadow-elevated"
           >
-            <div className="mb-3 flex items-center justify-between">
-              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-stone-600">
+            <div className="mb-4 flex items-center justify-between">
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-accent-strong">
                 Meny
               </p>
               <button
                 type="button"
                 onClick={() => setOpen(false)}
-                className="rounded-full border border-[#d9cfbf] bg-white px-3 py-1 text-xs font-semibold text-stone-700 transition hover:bg-[#efe5d8]"
+                className="rounded-full border border-border bg-surface-strong px-3 py-1 text-xs font-semibold text-ink-muted transition hover:bg-canvas-muted"
               >
                 Lukk
               </button>
             </div>
             <nav className="space-y-2" aria-label="Hovedmeny">
-              {navItems.map((item) => (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  onClick={() => setOpen(false)}
-                  className="block rounded-xl px-3 py-2 text-base text-stone-700 hover:bg-[#efe5d8]"
-                >
-                  {item.label}
-                </Link>
-              ))}
-              <Link
-                href="/gi"
+              {publicNavItems.map((item) => {
+                const isActive = isNavItemActive(pathname, item.href);
+
+                return (
+                  <TrackedLink
+                    key={item.href}
+                    href={item.href}
+                    eventName="nav_click"
+                    eventPayload={{
+                      location: "mobile_menu",
+                      target: item.href,
+                      label: item.label,
+                    }}
+                    onClick={() => setOpen(false)}
+                    aria-current={isActive ? "page" : undefined}
+                    className={cn(
+                      "block rounded-xl px-3 py-2 text-base transition",
+                      isActive
+                        ? "bg-accent-soft text-ink"
+                        : "text-ink-muted hover:bg-canvas-muted hover:text-ink",
+                    )}
+                  >
+                    {item.label}
+                  </TrackedLink>
+                );
+              })}
+              <TrackedLink
+                href={publicPrimaryCta.href}
+                eventName="cta_click"
+                eventPayload={{ location: "mobile_menu", target: publicPrimaryCta.href }}
                 onClick={() => setOpen(false)}
-                className="mt-2 block rounded-full bg-brand-600 px-4 py-2 text-center text-sm font-semibold text-white"
+                className={cn(buttonVariants("primary"), "mt-2 w-full")}
               >
-                Gi
-              </Link>
+                {publicPrimaryCta.label}
+              </TrackedLink>
             </nav>
           </div>
         </div>
