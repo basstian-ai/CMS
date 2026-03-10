@@ -80,6 +80,25 @@ const sanitizeExcerpt = (value: string | null | undefined, fallback: string) => 
   return `${normalized.slice(0, 157).trimEnd()}...`;
 };
 
+const sanitizeEventDescription = (value: string | null | undefined) => {
+  if (!value) {
+    return "Praktisk informasjon deles i kalenderoversikten.";
+  }
+
+  const normalized = value
+    .replace(/[#*_`>\-\n]+/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+
+  if (!normalized) {
+    return "Praktisk informasjon deles i kalenderoversikten.";
+  }
+
+  return normalized.length <= 140
+    ? normalized
+    : `${normalized.slice(0, 137).trimEnd()}...`;
+};
+
 type HomePageProps = {
   searchParams?: { lang?: string | string[] };
 };
@@ -109,8 +128,8 @@ export default async function HomePage({ searchParams }: HomePageProps) {
       titleSourceLocale: titleResult.sourceLocale ?? fallbackLocale,
       shouldAutoTranslateTitle: titleResult.missingRequestedLocale,
       dateLabel: formatEventDate(event.start_time),
-      location: event.location ?? "Sted annonseres snart",
-      href: `/kalender/${event.slug}` as Route,
+      location: event.location,
+      href: "/kalender" as Route,
     };
   });
 
@@ -178,7 +197,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
           />
 
           {upcomingEvents.length ? (
-            <div className="grid gap-5 md:grid-cols-2">
+            <ul className="space-y-3">
               {upcomingEvents.map((event) => {
                 const titleResult = resolveLocalizedFieldWithMeta(
                   event.title,
@@ -191,41 +210,41 @@ export default async function HomePage({ searchParams }: HomePageProps) {
                   fallbackLocale,
                 );
                 const title = titleResult.value ?? "Arrangement";
-                const description = sanitizeExcerpt(
-                  descriptionResult.value,
-                  "Mer informasjon om arrangementet kommer snart.",
-                );
+                const description = sanitizeEventDescription(descriptionResult.value);
 
                 return (
-                  <ContentCard
+                  <li
                     key={event.id}
-                    title={
-                      <AutoTranslatedText
-                        text={title}
-                        sourceLocale={titleResult.sourceLocale ?? fallbackLocale}
-                        targetLocale={locale}
-                        enabled={titleResult.missingRequestedLocale}
-                      />
-                    }
-                    description={
-                      <AutoTranslatedText
-                        text={description}
-                        sourceLocale={descriptionResult.sourceLocale ?? fallbackLocale}
-                        targetLocale={locale}
-                        enabled={descriptionResult.missingRequestedLocale}
-                      />
-                    }
-                    meta={`${formatEventDate(event.start_time)}${event.location ? ` - ${event.location}` : ""}`}
-                    href={`/kalender/${event.slug}`}
-                    hrefLabel="Vis arrangement"
-                    trackingLabel={title}
-                    imageSrc={resolvePublicImageUrl(event.cover_image_path) ?? defaultImage}
-                    imageAlt={title}
-                    variant="event"
-                  />
+                    className="rounded-2xl border border-border bg-surface p-4 shadow-soft md:p-5"
+                  >
+                    <div className="grid gap-3 md:grid-cols-[220px_1fr] md:items-start">
+                      <p className="text-xs font-semibold uppercase tracking-[0.2em] text-accent-strong">
+                        {formatEventDate(event.start_time)}
+                        {event.location ? ` • ${event.location}` : ""}
+                      </p>
+                      <div className="space-y-2">
+                        <h3 className="font-display text-2xl leading-tight text-ink">
+                          <AutoTranslatedText
+                            text={title}
+                            sourceLocale={titleResult.sourceLocale ?? fallbackLocale}
+                            targetLocale={locale}
+                            enabled={titleResult.missingRequestedLocale}
+                          />
+                        </h3>
+                        <p className="text-sm leading-relaxed text-ink-muted">
+                          <AutoTranslatedText
+                            text={description}
+                            sourceLocale={descriptionResult.sourceLocale ?? fallbackLocale}
+                            targetLocale={locale}
+                            enabled={descriptionResult.missingRequestedLocale}
+                          />
+                        </p>
+                      </div>
+                    </div>
+                  </li>
                 );
               })}
-            </div>
+            </ul>
           ) : (
             <EmptyState
               title="Ingen kommende arrangementer akkurat nå"

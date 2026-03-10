@@ -12,7 +12,7 @@ type EventTickerItem = {
   titleSourceLocale: string;
   shouldAutoTranslateTitle: boolean;
   dateLabel: string;
-  location: string;
+  location: string | null;
   href: Route;
 };
 
@@ -104,8 +104,12 @@ export function EventTicker({ items, locale }: EventTickerProps) {
                 </span>
                 <span className="mx-2 text-border">•</span>
                 <span>{activeItem.dateLabel}</span>
-                <span className="mx-2 text-border">•</span>
-                <span>{activeItem.location}</span>
+                {activeItem.location ? (
+                  <>
+                    <span className="mx-2 text-border">•</span>
+                    <span>{activeItem.location}</span>
+                  </>
+                ) : null}
               </TrackedLink>
             </div>
           </div>

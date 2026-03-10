@@ -35,15 +35,19 @@ function isMissingPresentationColumnError(
   const isMissingColumnCode = error?.code === "42703";
   const isMissingSchemaCacheCode = error?.code === "PGRST204";
   const errorText = [error?.message, error?.details, error?.hint].join(" ").toLowerCase();
+  const presentationColumns = [
+    "summary",
+    "hero_image_path",
+    "cta_label",
+    "cta_href",
+    "layout_variant",
+  ];
 
-  return (
-    (isMissingColumnCode || isMissingSchemaCacheCode) &&
-    (errorText.includes("pages.summary") ||
-      errorText.includes("pages.hero_image_path") ||
-      errorText.includes("pages.cta_label") ||
-      errorText.includes("pages.cta_href") ||
-      errorText.includes("pages.layout_variant"))
+  const mentionsPresentationColumn = presentationColumns.some((column) =>
+    errorText.includes(column),
   );
+
+  return (isMissingColumnCode || isMissingSchemaCacheCode) && mentionsPresentationColumn;
 }
 
 function withPresentationDefaults(page: LegacyPublicPage): PublicPage {

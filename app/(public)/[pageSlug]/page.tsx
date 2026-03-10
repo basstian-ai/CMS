@@ -28,6 +28,20 @@ const layoutVariantClassNames: Record<string, string> = {
   compact: "md:grid-cols-[1fr]",
 };
 
+function normalizeInternalCtaHref(value: string | null): Route {
+  if (!value) {
+    return "/kontakt";
+  }
+
+  const trimmed = value.trim();
+
+  if (!trimmed.startsWith("/") || trimmed.startsWith("//")) {
+    return "/kontakt";
+  }
+
+  return trimmed as Route;
+}
+
 type InfoPageProps = {
   params: {
     pageSlug: string;
@@ -104,9 +118,7 @@ export default async function InfoPage({ params, searchParams }: InfoPageProps) 
   const content = contentResult.value ?? "Innholdet er ikke tilgjengelig ennå.";
   const ctaLabel = ctaLabelResult.value ?? null;
   const ctaHref = page.cta_href ?? null;
-  const safeCtaHref = (
-    ctaHref && ctaHref.startsWith("/") ? ctaHref : "/kontakt"
-  ) as Route;
+  const safeCtaHref = normalizeInternalCtaHref(ctaHref);
   const imageUrl = resolvePublicImageUrl(page.hero_image_path);
   const layoutVariant = page.layout_variant ?? "standard";
   const variantClassName = layoutVariantClassNames[layoutVariant] ?? layoutVariantClassNames.standard;
@@ -144,7 +156,7 @@ export default async function InfoPage({ params, searchParams }: InfoPageProps) 
             <TrackedLink
               href={safeCtaHref}
               eventName="cta_click"
-              eventPayload={{ location: "dynamic_page", target: ctaHref, label: ctaLabel }}
+              eventPayload={{ location: "dynamic_page", target: safeCtaHref, label: ctaLabel }}
               className={buttonVariants("primary")}
             >
               <AutoTranslatedText
