@@ -26,7 +26,9 @@ export default async function PageDetailPage({
   const supabase = createSupabaseServerClient();
   const { data: page } = await supabase
     .from("pages")
-    .select("id, slug, title, content_md, status, published_at")
+    .select(
+      "id, slug, title, summary, content_md, cta_label, cta_href, hero_image_path, layout_variant, status, published_at",
+    )
     .eq("id", params.id)
     .single();
 
@@ -63,6 +65,23 @@ export default async function PageDetailPage({
                   className="w-full rounded-xl border border-slate-800 bg-slate-950 px-4 py-2"
                 />
               </label>
+              <label className="space-y-2 text-sm text-slate-200">
+                Sammendrag (NO)
+                <textarea
+                  name="summary"
+                  rows={3}
+                  defaultValue={page.summary?.no ?? ""}
+                  className="w-full rounded-xl border border-slate-800 bg-slate-950 px-4 py-2"
+                />
+              </label>
+              <label className="space-y-2 text-sm text-slate-200">
+                CTA-label (NO)
+                <input
+                  name="cta_label"
+                  defaultValue={page.cta_label?.no ?? ""}
+                  className="w-full rounded-xl border border-slate-800 bg-slate-950 px-4 py-2"
+                />
+              </label>
               <MarkdownEditor
                 label="Innhold (NO)"
                 name="content"
@@ -82,6 +101,23 @@ export default async function PageDetailPage({
                   className="w-full rounded-xl border border-slate-800 bg-slate-950 px-4 py-2"
                 />
               </label>
+              <label className="space-y-2 text-sm text-slate-200">
+                Sammendrag (EN)
+                <textarea
+                  name="summary_en"
+                  rows={3}
+                  defaultValue={page.summary?.en ?? ""}
+                  className="w-full rounded-xl border border-slate-800 bg-slate-950 px-4 py-2"
+                />
+              </label>
+              <label className="space-y-2 text-sm text-slate-200">
+                CTA-label (EN)
+                <input
+                  name="cta_label_en"
+                  defaultValue={page.cta_label?.en ?? ""}
+                  className="w-full rounded-xl border border-slate-800 bg-slate-950 px-4 py-2"
+                />
+              </label>
               <MarkdownEditor
                 label="Innhold (EN)"
                 name="content_en"
@@ -92,6 +128,7 @@ export default async function PageDetailPage({
             </div>
           }
         />
+
         <div className="grid gap-4 md:grid-cols-2">
           <SlugField
             initialSlug={page.slug}
@@ -99,6 +136,37 @@ export default async function PageDetailPage({
             titleInputName="title"
             required
           />
+          <label className="space-y-2 text-sm text-slate-200">
+            Layoutvariant
+            <select
+              name="layout_variant"
+              defaultValue={page.layout_variant ?? "standard"}
+              className="w-full rounded-xl border border-slate-800 bg-slate-950 px-4 py-2"
+            >
+              <option value="standard">Standard</option>
+              <option value="editorial">Editorial</option>
+              <option value="compact">Kompakt</option>
+            </select>
+          </label>
+        </div>
+
+        <div className="grid gap-4 md:grid-cols-2">
+          <label className="space-y-2 text-sm text-slate-200">
+            CTA-lenke
+            <input
+              name="cta_href"
+              defaultValue={page.cta_href ?? ""}
+              className="w-full rounded-xl border border-slate-800 bg-slate-950 px-4 py-2"
+            />
+          </label>
+          <label className="space-y-2 text-sm text-slate-200">
+            Hero-bilde (sti eller URL)
+            <input
+              name="hero_image_path"
+              defaultValue={page.hero_image_path ?? ""}
+              className="w-full rounded-xl border border-slate-800 bg-slate-950 px-4 py-2"
+            />
+          </label>
         </div>
 
         <div className="grid gap-4 md:grid-cols-2">

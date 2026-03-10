@@ -6,6 +6,7 @@ import { usePathname, useSearchParams } from "next/navigation";
 import type { UrlObject } from "url";
 
 import { normalizeLocale } from "@/lib/data/localization";
+import { trackPublicUiEvent } from "@/lib/analytics/track";
 import { cn } from "@/lib/utils";
 
 const locales = [
@@ -61,7 +62,7 @@ export function LanguageToggle() {
 
   return (
     <div
-      className="flex items-center gap-1 rounded-full bg-[#efe5d8] p-1 text-xs font-semibold text-stone-700"
+      className="flex items-center gap-1 rounded-full border border-border bg-accent-soft p-1 text-xs font-semibold text-ink-muted"
       data-no-auto-translate
     >
       {locales.map((locale) => {
@@ -71,14 +72,19 @@ export function LanguageToggle() {
             key={locale.value}
             href={createHref(locale.value)}
             onClick={() => {
+              trackPublicUiEvent("language_switch", {
+                from: currentLocale,
+                to: locale.value,
+                path: pathname,
+              });
               setLanguageCookie(locale.value);
               setCookieLocale(locale.value);
             }}
             className={cn(
               "rounded-full px-3 py-1 transition",
               isActive
-                ? "bg-white text-stone-900 shadow-sm"
-                : "text-stone-600 hover:text-stone-900"
+                ? "bg-surface-strong text-ink shadow-sm"
+                : "text-ink-muted hover:text-ink"
             )}
           >
             {locale.label}

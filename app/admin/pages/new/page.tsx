@@ -36,6 +36,62 @@ export default function NewPage() {
             />
           </label>
         </div>
+
+        <div className="grid gap-4 md:grid-cols-2">
+          <label className="space-y-2 text-sm text-slate-200">
+            Sammendrag (NO)
+            <textarea
+              name="summary"
+              rows={3}
+              className="w-full rounded-xl border border-slate-800 bg-slate-950 px-4 py-2"
+            />
+          </label>
+          <label className="space-y-2 text-sm text-slate-200">
+            Sammendrag (EN)
+            <textarea
+              name="summary_en"
+              rows={3}
+              className="w-full rounded-xl border border-slate-800 bg-slate-950 px-4 py-2"
+            />
+          </label>
+        </div>
+
+        <div className="grid gap-4 md:grid-cols-2">
+          <label className="space-y-2 text-sm text-slate-200">
+            CTA-label (NO)
+            <input
+              name="cta_label"
+              className="w-full rounded-xl border border-slate-800 bg-slate-950 px-4 py-2"
+            />
+          </label>
+          <label className="space-y-2 text-sm text-slate-200">
+            CTA-label (EN)
+            <input
+              name="cta_label_en"
+              className="w-full rounded-xl border border-slate-800 bg-slate-950 px-4 py-2"
+            />
+          </label>
+        </div>
+
+        <div className="grid gap-4 md:grid-cols-2">
+          <label className="space-y-2 text-sm text-slate-200">
+            CTA-lenke
+            <input
+              name="cta_href"
+              placeholder="/kontakt"
+              className="w-full rounded-xl border border-slate-800 bg-slate-950 px-4 py-2"
+            />
+          </label>
+          <label className="space-y-2 text-sm text-slate-200">
+            Hero-bilde (sti eller URL)
+            <input
+              name="hero_image_path"
+              placeholder="hero/om-oss.jpg"
+              className="w-full rounded-xl border border-slate-800 bg-slate-950 px-4 py-2"
+            />
+          </label>
+        </div>
+
         <div className="grid gap-4 md:grid-cols-2">
           <label className="space-y-2 text-sm text-slate-200">
             Slug
@@ -44,6 +100,18 @@ export default function NewPage() {
               required
               className="w-full rounded-xl border border-slate-800 bg-slate-950 px-4 py-2"
             />
+          </label>
+          <label className="space-y-2 text-sm text-slate-200">
+            Layoutvariant
+            <select
+              name="layout_variant"
+              defaultValue="standard"
+              className="w-full rounded-xl border border-slate-800 bg-slate-950 px-4 py-2"
+            >
+              <option value="standard">Standard</option>
+              <option value="editorial">Editorial</option>
+              <option value="compact">Kompakt</option>
+            </select>
           </label>
         </div>
 

@@ -1,10 +1,10 @@
 'use client';
 
-import Link from 'next/link';
 import type { Route } from 'next';
 import { useEffect, useState } from 'react';
 
 import { AutoTranslatedText } from '@/components/ui/auto-translated-text';
+import { TrackedLink } from '@/components/public/tracked-link';
 
 type EventTickerItem = {
   id: string;
@@ -12,7 +12,7 @@ type EventTickerItem = {
   titleSourceLocale: string;
   shouldAutoTranslateTitle: boolean;
   dateLabel: string;
-  location: string;
+  location: string | null;
   href: Route;
 };
 
@@ -72,9 +72,9 @@ export function EventTicker({ items, locale }: EventTickerProps) {
   const canPauseRotation = items.length > 1 && !prefersReducedMotion;
 
   return (
-    <section className="border-b border-[#e6ddcf] bg-[#f3ece1]">
+    <section className="border-b border-border/80 bg-canvas-muted">
       <div className="container-layout py-3">
-        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-stone-600">
+        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-accent-strong">
           Kommende eventer
         </p>
         <p id="event-ticker-instructions" className="sr-only">
@@ -84,9 +84,15 @@ export function EventTicker({ items, locale }: EventTickerProps) {
         <div className="mt-1 flex items-start justify-between gap-3">
           <div className="relative min-h-[2rem]">
             <div key={activeItem.id}>
-              <Link
+              <TrackedLink
                 href={activeItem.href}
-                className="text-sm text-stone-700 transition hover:text-stone-950"
+                eventName="card_click"
+                eventPayload={{
+                  location: "event_ticker",
+                  target: activeItem.href,
+                  label: activeItem.title,
+                }}
+                className="text-sm text-ink-muted transition hover:text-ink"
               >
                 <span className="font-semibold">
                   <AutoTranslatedText
@@ -96,11 +102,15 @@ export function EventTicker({ items, locale }: EventTickerProps) {
                     enabled={activeItem.shouldAutoTranslateTitle}
                   />
                 </span>
-                <span className="mx-2 text-stone-400">•</span>
+                <span className="mx-2 text-border">•</span>
                 <span>{activeItem.dateLabel}</span>
-                <span className="mx-2 text-stone-400">•</span>
-                <span>{activeItem.location}</span>
-              </Link>
+                {activeItem.location ? (
+                  <>
+                    <span className="mx-2 text-border">•</span>
+                    <span>{activeItem.location}</span>
+                  </>
+                ) : null}
+              </TrackedLink>
             </div>
           </div>
           {canPauseRotation ? (
@@ -109,7 +119,7 @@ export function EventTicker({ items, locale }: EventTickerProps) {
               aria-pressed={isPaused}
               aria-describedby="event-ticker-instructions"
               onClick={() => setIsPaused((current) => !current)}
-              className="shrink-0 rounded-full border border-[#d9cfbf] bg-[#fffaf3] px-3 py-1 text-xs font-semibold text-stone-700 transition hover:bg-[#efe5d8]"
+              className="shrink-0 rounded-full border border-border bg-surface px-3 py-1 text-xs font-semibold text-ink-muted transition hover:bg-accent-soft"
             >
               {isPaused ? 'Fortsett' : 'Pause'}
             </button>

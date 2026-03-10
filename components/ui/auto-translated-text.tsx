@@ -48,7 +48,7 @@ export function AutoTranslatedText({
     <span data-no-auto-translate>
       {output}
       {showBadge && translatedText ? (
-        <span className="ml-2 inline-flex rounded-full bg-[#efe5d8] px-2 py-0.5 text-[10px] uppercase tracking-[0.08em] text-stone-600">
+        <span className="ml-2 inline-flex rounded-full bg-accent-soft px-2 py-0.5 text-[10px] uppercase tracking-[0.08em] text-ink-muted">
           Automatisk oversatt
         </span>
       ) : null}

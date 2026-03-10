@@ -28,6 +28,7 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=
 NEXT_PUBLIC_SOCIAL_INSTAGRAM_URL=
 NEXT_PUBLIC_SOCIAL_FACEBOOK_URL=
 NEXT_PUBLIC_SOCIAL_SPOTIFY_URL=
+NEXT_PUBLIC_PUBLIC_REDESIGN=true
 SUPABASE_URL=
 SUPABASE_SERVICE_ROLE_KEY=
 SUPABASE_JWT_SECRET=
@@ -36,6 +37,7 @@ CRON_SECRET=
 ```
 
 `NEXT_PUBLIC_SOCIAL_*` brukes i footer på publikumssidene. Hvis en URL mangler, skjules den lenken automatisk.
+`NEXT_PUBLIC_PUBLIC_REDESIGN` styrer nytt public-design og event-tracking (`true` for aktivert).
 
 ### Google Calendar → Supabase sync
 For å importere en offentlig Google Calendar til tabellen `events`, bruk skriptet under. Det henter en offentlig `.ics`-feed og oppdaterer `events` med `status = published`.
@@ -62,6 +64,7 @@ For å få dette til å kjøre i produksjon:
 
 ### Supabase (milepæl 2)
 - Kjør migrasjonene i `db/migrations/` i rekkefølge (inkludert `0006_add_events_sync_metadata.sql` for Google Calendar reconcile).
+- For redesign av public-sider: kjør også `0007_public_page_presentation_fields.sql` for nye sidefelter (summary/hero/cta/layout).
 - Opprett en admin-bruker og sett rollen i `profiles` til `admin`.
 
 ### Vercel

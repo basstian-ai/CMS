@@ -8,7 +8,7 @@ type TextProps = PropsWithChildren<{ className?: string }>;
 
 export function Heading({ className, children }: HeadingProps) {
   return (
-    <h1 className={cn("text-4xl font-semibold tracking-tight text-stone-900", className)}>
+    <h1 className={cn("font-display text-4xl tracking-tight text-ink md:text-5xl", className)}>
       {children}
     </h1>
   );
@@ -16,7 +16,7 @@ export function Heading({ className, children }: HeadingProps) {
 
 export function Subheading({ className, children }: HeadingProps) {
   return (
-    <h2 className={cn("text-2xl font-semibold tracking-tight text-stone-900", className)}>
+    <h2 className={cn("font-display text-3xl tracking-tight text-ink", className)}>
       {children}
     </h2>
   );
@@ -24,7 +24,7 @@ export function Subheading({ className, children }: HeadingProps) {
 
 export function BodyText({ className, children }: TextProps) {
   return (
-    <p className={cn("text-base leading-relaxed text-stone-600", className)}>
+    <p className={cn("text-base leading-relaxed text-ink-muted md:text-lg", className)}>
       {children}
     </p>
   );
